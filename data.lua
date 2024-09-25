@@ -4,7 +4,7 @@ data:extend({
   {
     type = "custom-input",
     name = "sas-get-snipping-tool",
-    key_sequence = "ALT + SHIFT + S",
+    key_sequence = "SHIFT + ALT + S",
     order = "a",-- TODO
   },
 

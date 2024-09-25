@@ -81,7 +81,7 @@ script.on_event(defines.events.on_built_entity, function(e)
   else
     local zoom = 1
     local dimensions = get_dimensions_from_box(player_table.start_of_selection, entity.position, zoom)
-    cursor_stack.label = string.format("%sx%s", dimensions.resolution.x, dimensions.resolution.y)
+    cursor_stack.label = string.format("%sx%spx", dimensions.resolution.x, dimensions.resolution.y)
   end
 
   entity.destroy()
