@@ -1,0 +1,8 @@
+{
+  "name": "simple-area-screenshots",
+  "version": "0.0.1",
+  "title": "Simple Area Screenshots",
+  "author": "Wiwiweb",
+  "dependencies": ["base >= 1.2.0"],
+  "factorio_version": "1.2"
+}
