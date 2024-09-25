@@ -34,15 +34,6 @@ script.on_event(defines.events.on_player_created, function(e)
   player_init(e.player_index)
 end)
 
--- --- @param player_table PlayerTable
--- local function destroy_last_entity(player_table)
---   local last_entity = player_table.last_entity
---   if last_entity then
---     last_entity.destroy()
---     player_table.last_entity = nil
---   end
--- end
-
 --- @param pos1 MapPosition
 --- @param pos2 MapPosition
 --- @param zoom uint
@@ -60,25 +51,11 @@ local function get_dimensions_from_box(pos1, pos2, zoom)
   }
 end
 
--- --- @param player LuaPlayer
--- --- @param current_position MapPosition
--- --- @param start_of_selection MapPosition
--- --- @param zoom uint
--- local function update_cursor_label(player, current_position, start_of_selection, zoom)
---   local cursor_stack = player.cursor_stack
---   if cursor_stack and cursor_stack.valid_for_read then
---     local dimensions = get_dimensions_from_box(current_position, start_of_selection, zoom)
---     cursor_stack.label = string.format("%sx%s", dimensions.resolution.x, dimensions.resoluiton.y)
---   end
--- end
-
 script.on_event(defines.events.on_built_entity, function(e)
   local player = game.get_player(e.player_index) --[[@as LuaPlayer]]
   local player_table = storage.players[e.player_index]
   local entity = e.created_entity
   local is_ghost = entity.name == "entity-ghost"
-
-  -- destroy_last_entity(player_table)
 
   if is_ghost then
     -- instantly revive the entity if it is a ghost
@@ -90,7 +67,6 @@ script.on_event(defines.events.on_built_entity, function(e)
   end
   -- make the entity invincible to prevent attacks
   entity.destructible = false
-  -- player_table.last_entity = entity
 
   log(entity.position)
   -- Cursor item will have been used to "place" the dummy, restore it.
@@ -108,17 +84,7 @@ script.on_event(defines.events.on_built_entity, function(e)
     cursor_stack.label = string.format("%sx%s", dimensions.resolution.x, dimensions.resolution.y)
   end
 
-  -- update tape
-  -- if player_table.flags.drawing then
-  --   tape.update_draw(player, player_table, entity.position, is_ghost)
-  -- elseif player_table.flags.editing then
-  --   tape.move(player, player_table, entity.position, entity.surface)
-  -- else
-  --   tape.start_draw(player, player_table, entity.position, entity.surface)
-  -- end
-
   entity.destroy()
-  -- set_cursor_label(player, player_table)
 end, {
   { filter = "name", name = "sas-dummy-entity" },
   { filter = "ghost_name", name = "sas-dummy-entity" },
