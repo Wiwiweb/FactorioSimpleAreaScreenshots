@@ -41,6 +41,7 @@ data:extend({
     draw_label_for_cursor_render = true,
     stack_size = 1,
     flags = { "only-in-cursor", "not-stackable", "spawnable" },
+    hidden = true,
     place_result = "sas-dummy-entity",
   },
   {
