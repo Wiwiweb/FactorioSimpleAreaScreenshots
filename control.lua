@@ -1,9 +1,13 @@
+--- @class PlayerTable
+--- @field start_of_selection MapPosition?
+
 local max_resolution = 16384
 
 --- @param player_index uint
 local function player_init(player_index)
   storage.players[player_index] = {
-    last_dummy_entity = nil,
+    start_of_selection = nil,
+    -- last_dummy_entity = nil,
   }
 end
 
@@ -30,14 +34,43 @@ script.on_event(defines.events.on_player_created, function(e)
   player_init(e.player_index)
 end)
 
---- @param player_table PlayerTable
-local function destroy_last_entity(player_table)
-  local last_entity = player_table.last_entity
-  if last_entity then
-    last_entity.destroy()
-    player_table.last_entity = nil
-  end
+-- --- @param player_table PlayerTable
+-- local function destroy_last_entity(player_table)
+--   local last_entity = player_table.last_entity
+--   if last_entity then
+--     last_entity.destroy()
+--     player_table.last_entity = nil
+--   end
+-- end
+
+--- @param pos1 MapPosition
+--- @param pos2 MapPosition
+--- @param zoom uint
+local function get_dimensions_from_box(pos1, pos2, zoom)
+  local width = math.abs(pos1.x - pos2.x)
+  local height = math.abs(pos1.y - pos2.y)
+	local resX = math.floor(width * 32 * zoom)
+	local resY = math.floor(height * 32 * zoom)
+	local centerX = math.min(pos1.x, pos2.x) + width / 2
+	local centerY = math.min(pos1.y, pos2.y) + height / 2
+  return {
+    size = {x=width, y=height},
+    resolution = {x=resX, y=resY},
+    center = {x=centerX, y=centerY},
+  }
 end
+
+-- --- @param player LuaPlayer
+-- --- @param current_position MapPosition
+-- --- @param start_of_selection MapPosition
+-- --- @param zoom uint
+-- local function update_cursor_label(player, current_position, start_of_selection, zoom)
+--   local cursor_stack = player.cursor_stack
+--   if cursor_stack and cursor_stack.valid_for_read then
+--     local dimensions = get_dimensions_from_box(current_position, start_of_selection, zoom)
+--     cursor_stack.label = string.format("%sx%s", dimensions.resolution.x, dimensions.resoluiton.y)
+--   end
+-- end
 
 script.on_event(defines.events.on_built_entity, function(e)
   local player = game.get_player(e.player_index) --[[@as LuaPlayer]]
@@ -57,9 +90,23 @@ script.on_event(defines.events.on_built_entity, function(e)
   end
   -- make the entity invincible to prevent attacks
   entity.destructible = false
-  player_table.last_entity = entity
+  -- player_table.last_entity = entity
 
   log(entity.position)
+  -- Cursor item will have been used to "place" the dummy, restore it.
+  local cursor_stack = player.cursor_stack
+  if cursor_stack == nil then
+    return
+  end
+  cursor_stack.set_stack({ name = "sas-snipping-tool", count = 1 })
+
+  if player_table.start_of_selection == nil then -- New selection
+    player_table.start_of_selection = entity.position
+  else
+    local zoom = 1
+    local dimensions = get_dimensions_from_box(player_table.start_of_selection, entity.position, zoom)
+    cursor_stack.label = string.format("%sx%s", dimensions.resolution.x, dimensions.resolution.y)
+  end
 
   -- update tape
   -- if player_table.flags.drawing then
@@ -70,8 +117,7 @@ script.on_event(defines.events.on_built_entity, function(e)
   --   tape.start_draw(player, player_table, entity.position, entity.surface)
   -- end
 
-  -- -- update the cursor
-  player.cursor_stack.set_stack({ name = "sas-snipping-tool", count = 1 })
+  entity.destroy()
   -- set_cursor_label(player, player_table)
 end, {
   { filter = "name", name = "sas-dummy-entity" },
@@ -80,24 +126,21 @@ end, {
 
 script.on_event(defines.events.on_player_selected_area, function(e)
   log("PLACED: " .. serpent.line(e.area))
-  log(serpent.block(e))
+  local player = game.get_player(e.player_index) --[[@as LuaPlayer]]
+  local player_table = storage.players[e.player_index]
+  player_table.start_of_selection = nil
+  player.cursor_stack.clear()
 
   local game_id = game.default_map_gen_settings.seed % 10000 -- First 4 digits
   local path = string.format("simple-area-screenshots/%s_%s_%s.png", game_id, format_time(e.tick), e.surface.name)
 
-  local width = e.area.right_bottom.x - e.area.left_top.x
-  local height = e.area.right_bottom.y - e.area.left_top.y
-
   local zoom = 1
-	local resX = math.floor(width * 32 * zoom)
-	local resY = math.floor(height * 32 * zoom)
-	local posX = e.area.left_top.x + width / 2
-	local posY = e.area.left_top.y + height / 2
+  local dimensions = get_dimensions_from_box(e.area.left_top, e.area.right_bottom, zoom)
 
-  if resX <= 0 or resY <= 0 then
+  if dimensions.resolution.x <= 0 or dimensions.resolution.y <= 0 then
     return -- Silently abort
   end
-  if resX > max_resolution or resY > max_resolution then
+  if dimensions.resolution.x > max_resolution or dimensions.resolution.y > max_resolution then
     game.get_player(e.player_index).print({"simple-area-screenshots.screenshot-too-big", max_resolution})
     resX = math.min(resX, max_resolution)
     resY = math.min(resY, max_resolution)
@@ -106,8 +149,8 @@ script.on_event(defines.events.on_player_selected_area, function(e)
 	game.take_screenshot({
 		by_player = e.player_index,
 		surface = e.surface,
-		position = {posX, posY},
-		resolution = {resX, resY},
+		position = dimensions.center,
+		resolution = dimensions.resolution,
 		zoom = zoom,
     path = path,
 		daytime = 0

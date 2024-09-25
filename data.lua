@@ -12,7 +12,7 @@ data:extend({
     type = "shortcut",
     name = "sas-get-snipping-tool",
     order = "a", -- TODO
-    associated_control_input = "get-snipping-tool",
+    associated_control_input = "sas-get-snipping-tool",
     action = "spawn-item",
     item_to_spawn = "sas-snipping-tool",
     icon = "__simple-area-screenshots__/graphics/shortcut-icon-32.png",
@@ -38,9 +38,9 @@ data:extend({
       cursor_box_type = "entity", -- Doesn't matter, nothing will be selected
       mode = "nothing",
     },
-    -- draw_label_for_cursor_render = true
+    draw_label_for_cursor_render = true,
     stack_size = 1,
-    flags = {"only-in-cursor", "not-stackable", "spawnable", "mod-openable"},
+    flags = { "only-in-cursor", "not-stackable", "spawnable" },
     place_result = "sas-dummy-entity",
   },
   {
@@ -54,7 +54,6 @@ data:extend({
     build_sound = {
       filename = "__core__/sound/silence-1sec.ogg",
     },
-    collision_box = { { -0.4, -0.4 }, { 0.4, 0.4 } },
     collision_mask = {
       layers = {},
     },
