@@ -1,5 +1,6 @@
 --- @class PlayerTable
 --- @field start_of_selection MapPosition?
+--- @field increased_build_distance boolean
 
 local max_resolution = 16384
 
@@ -7,7 +8,7 @@ local max_resolution = 16384
 local function player_init(player_index)
   storage.players[player_index] = {
     start_of_selection = nil,
-    -- last_dummy_entity = nil,
+    increased_build_distance = false,
   }
 end
 
@@ -50,6 +51,29 @@ local function get_dimensions_from_box(pos1, pos2, zoom)
     center = {x=centerX, y=centerY},
   }
 end
+
+script.on_event(defines.events.on_player_cursor_stack_changed, function(e)
+  local player = game.get_player(e.player_index) --[[@as LuaPlayer]]
+  local player_table = storage.players[e.player_index]
+  if not player_table then
+    return
+  end
+  local cursor_stack = player.cursor_stack
+  if cursor_stack and cursor_stack.valid_for_read and cursor_stack.name == "sas-snipping-tool" then
+    if not player_table.increased_build_distance then
+      player.character_build_distance_bonus = player.character_build_distance_bonus + 1000000
+      player_table.increased_build_distance = true
+      log("INCREASED DISTANCE")
+    end
+  elseif player_table.increased_build_distance then
+    local build_distance_bonus = player.character_build_distance_bonus
+    if build_distance_bonus >= 1000000 then -- Safety check against mods who might have reduced it in the meantime.
+      player.character_build_distance_bonus = build_distance_bonus - 1000000
+    end
+    player_table.increased_build_distance = false
+    log("DECREASED DISTANCE")
+  end
+end)
 
 script.on_event(defines.events.on_built_entity, function(e)
   local player = game.get_player(e.player_index) --[[@as LuaPlayer]]
