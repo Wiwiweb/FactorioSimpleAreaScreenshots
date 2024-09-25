@@ -82,7 +82,7 @@ script.on_event(defines.events.on_player_selected_area, function(e)
   log("PLACED: " .. serpent.line(e.area))
   log(serpent.block(e))
 
-  local game_id = game.default_map_gen_settings.seed
+  local game_id = game.default_map_gen_settings.seed % 10000 -- First 4 digits
   local path = string.format("simple-area-screenshots/%s_%s_%s.png", game_id, format_time(e.tick), e.surface.name)
 
   local width = e.area.right_bottom.x - e.area.left_top.x
