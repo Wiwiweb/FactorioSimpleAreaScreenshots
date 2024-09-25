@@ -13,7 +13,7 @@ local function format_time(tick)
   local seconds = total_seconds % 60
   local minutes = math.floor(total_seconds / 60) % 60
   local hours = math.floor(total_seconds / 3600)
-  return string.format("%03d:%02d:%02d", hours, minutes, seconds)
+  return string.format("%04d:%02d:%02d", hours, minutes, seconds)
 end
 
 script.on_init(function()
