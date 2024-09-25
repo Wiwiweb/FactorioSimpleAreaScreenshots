@@ -84,7 +84,7 @@ script.on_event(defines.events.on_built_entity, function(e)
     cursor_stack.label = string.format("%sx%spx", dimensions.resolution.x, dimensions.resolution.y)
   end
 
-  entity.destroy()
+  -- entity.destroy()
 end, {
   { filter = "name", name = "sas-dummy-entity" },
   { filter = "ghost_name", name = "sas-dummy-entity" },
@@ -94,8 +94,12 @@ script.on_event(defines.events.on_player_selected_area, function(e)
   log("PLACED: " .. serpent.line(e.area))
   local player = game.get_player(e.player_index) --[[@as LuaPlayer]]
   local player_table = storage.players[e.player_index]
+  local cursor_stack = player.cursor_stack
+  if cursor_stack == nil or not cursor_stack.valid_for_read or cursor_stack.name ~= "sas-snipping-tool" then
+    return
+  end
+  cursor_stack.clear()
   player_table.start_of_selection = nil
-  player.cursor_stack.clear()
 
   local game_id = game.default_map_gen_settings.seed % 10000 -- First 4 digits
   local path = string.format("simple-area-screenshots/%s_%s_%s.png", game_id, format_time(e.tick), e.surface.name)
