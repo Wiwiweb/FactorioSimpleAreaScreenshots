@@ -1,3 +1,5 @@
+local max_resolution = 16384
+
 --- @param player_index uint
 local function player_init(player_index)
   storage.players[player_index] = {
@@ -91,6 +93,15 @@ script.on_event(defines.events.on_player_selected_area, function(e)
 	local resY = math.floor(height * 32 * zoom)
 	local posX = e.area.left_top.x + width / 2
 	local posY = e.area.left_top.y + height / 2
+
+  if resX < 0 or resY < 0 then
+    return -- Silently abort
+  end
+  if resX > max_resolution or resY > max_resolution then
+    game.get_player(e.player_index).print({"simple-area-screenshots.screenshot-too-big", max_resolution})
+    resX = math.min(resX, max_resolution)
+    resY = math.min(resY, max_resolution)
+  end
 
 	game.take_screenshot({
 		by_player = e.player_index,
