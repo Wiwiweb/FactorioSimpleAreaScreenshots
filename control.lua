@@ -94,7 +94,7 @@ script.on_event(defines.events.on_player_selected_area, function(e)
 	local posX = e.area.left_top.x + width / 2
 	local posY = e.area.left_top.y + height / 2
 
-  if resX < 0 or resY < 0 then
+  if resX <= 0 or resY <= 0 then
     return -- Silently abort
   end
   if resX > max_resolution or resY > max_resolution then
