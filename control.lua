@@ -1,6 +1,9 @@
+filesize = require("scripts/filesize")
+
 --- @class PlayerTable
 --- @field start_of_selection MapPosition?
 --- @field increased_build_distance boolean
+--- @field filesize_parameter float
 
 local max_resolution = 16384
 
@@ -9,6 +12,7 @@ local function player_init(player_index)
   storage.players[player_index] = {
     start_of_selection = nil,
     increased_build_distance = false,
+    filesize_parameter = get_filesize_parameter(player_index),
   }
 end
 
@@ -22,7 +26,6 @@ local function format_time(tick)
 end
 
 script.on_init(function()
-  log("on_init")
   --- @type table<uint, PlayerTable>
   storage.players = {}
 
@@ -33,6 +36,12 @@ end)
 
 script.on_event(defines.events.on_player_created, function(e)
   player_init(e.player_index)
+end)
+
+script.on_event(defines.events.on_runtime_mod_setting_changed, function(e)
+  if e.setting == "sas-filetype" or e.setting == "sas-jpg-quality" then
+    storage.players[e.player_index].filesize_parameter = get_filesize_parameter(e.player_index)
+  end
 end)
 
 --- @param pos1 MapPosition
@@ -105,7 +114,8 @@ script.on_event(defines.events.on_built_entity, function(e)
   else
     local zoom = 1
     local dimensions = get_dimensions_from_box(player_table.start_of_selection, entity.position, zoom)
-    cursor_stack.label = string.format("%sx%spx", dimensions.resolution.x, dimensions.resolution.y)
+    local pixel_count = dimensions.resolution.x * dimensions.resolution.y
+    cursor_stack.label = string.format("%sx%spx (%s)", dimensions.resolution.x, dimensions.resolution.y, get_filesize_string(player_table, pixel_count))
   end
 
   -- entity.destroy()
@@ -193,19 +203,3 @@ script.on_event(defines.events.on_player_selected_area, function(e)
   end
   game.get_player(e.player_index).print({"simple-area-screenshots.screenshot-taken", path})
 end)
-
-
--- if global.snip[index].output_format_index == 1 then
---   local bytesPerPixel = 2
---   size = bytesPerPixel * width * height
-
---   if size > 999999999 then
---       size = (math.floor(size / 100000000) / 10) .. " GiB"
---   elseif size > 999999 then
---       size = (math.floor(size / 100000) / 10) .. " MiB"
---   elseif size > 999 then
---       size = (math.floor(size / 100) / 10) .. " KiB"
---   else
---       size = size .. " B"
---   end
--- end
