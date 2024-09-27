@@ -28,7 +28,7 @@ data.extend{
     name = "sas-daytime",
     setting_type = "runtime-per-user",
     default_value = "daytime",
-    allowed_values = {"daytime", "nighttime", "noop"},
+    allowed_values = {"daytime", "nighttime", "both", "noop"},
     order = "d",
   },
 }

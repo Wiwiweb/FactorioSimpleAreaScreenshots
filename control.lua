@@ -152,11 +152,14 @@ script.on_event(defines.events.on_player_selected_area, function(e)
   local anti_alias = player_settings["sas-anti-alias"].value --[[@as boolean]]
 
   local daytime
+  local also_nighttime = false
   if player_settings["sas-daytime"].value == "daytime" then
     daytime = 0
   elseif player_settings["sas-filetype"].value == "nighttime" then
     daytime = 0.5
-    error("Unknown file type: " .. player_settings["sas-filetype"].value)
+  elseif player_settings["sas-filetype"].value == "both" then
+    daytime = 0
+    also_nighttime = true
   end
 
   local game_id = game.default_map_gen_settings.seed % 10000 -- First 4 digits
@@ -173,6 +176,21 @@ script.on_event(defines.events.on_player_selected_area, function(e)
     quality = jpg_quality,
 		daytime = daytime,
 	})
+
+  if also_nighttime then
+    local night_path = string.format("simple-area-screenshots/%s_%s_%s_night.%s", game_id, format_time(e.tick), e.surface.name, file_extension)
+    game.take_screenshot({
+      by_player = e.player_index,
+      surface = e.surface,
+      position = dimensions.center,
+      resolution = dimensions.resolution,
+      zoom = zoom,
+      path = night_path,
+      anti_alias = anti_alias,
+      quality = jpg_quality,
+      daytime = 0.5,
+    })
+  end
   game.get_player(e.player_index).print({"simple-area-screenshots.screenshot-taken", path})
 end)
 
