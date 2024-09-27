@@ -140,9 +140,9 @@ script.on_event(defines.events.on_player_selected_area, function(e)
   local player_settings = settings.get_player_settings(player)
   local file_extension
   local jpg_quality
-  if player_settings["sas-filetype"].value == "JPG" then
+  if player_settings["sas-filetype"].value == "JPEG" then
     file_extension = "jpg"
-    jpg_quality = player_settings["sas-filetype"].value --[[@as number]]
+    jpg_quality = player_settings["sas-jpg-quality"].value --[[@as uint]]
   elseif player_settings["sas-filetype"].value == "PNG" then
     file_extension = "png"
   else
@@ -155,9 +155,9 @@ script.on_event(defines.events.on_player_selected_area, function(e)
   local also_nighttime = false
   if player_settings["sas-daytime"].value == "daytime" then
     daytime = 0
-  elseif player_settings["sas-filetype"].value == "nighttime" then
+  elseif player_settings["sas-daytime"].value == "nighttime" then
     daytime = 0.5
-  elseif player_settings["sas-filetype"].value == "both" then
+  elseif player_settings["sas-daytime"].value == "both" then
     daytime = 0
     also_nighttime = true
   end
