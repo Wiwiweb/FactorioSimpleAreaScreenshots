@@ -125,9 +125,6 @@ script.on_event(defines.events.on_player_selected_area, function(e)
   cursor_stack.clear()
   player_table.start_of_selection = nil
 
-  local game_id = game.default_map_gen_settings.seed % 10000 -- First 4 digits
-  local path = string.format("simple-area-screenshots/%s_%s_%s.png", game_id, format_time(e.tick), e.surface.name)
-
   local zoom = 1
   local dimensions = get_dimensions_from_box(e.area.left_top, e.area.right_bottom, zoom)
 
@@ -140,6 +137,31 @@ script.on_event(defines.events.on_player_selected_area, function(e)
     resY = math.min(resY, max_resolution)
   end
 
+  local player_settings = settings.get_player_settings(player)
+  local file_extension
+  local jpg_quality
+  if player_settings["sas-filetype"].value == "JPG" then
+    file_extension = "jpg"
+    jpg_quality = player_settings["sas-filetype"].value --[[@as number]]
+  elseif player_settings["sas-filetype"].value == "PNG" then
+    file_extension = "png"
+  else
+    error("Unknown file type: " .. player_settings["sas-filetype"].value)
+  end
+
+  local anti_alias = player_settings["sas-anti-alias"].value --[[@as boolean]]
+
+  local daytime
+  if player_settings["sas-daytime"].value == "daytime" then
+    daytime = 0
+  elseif player_settings["sas-filetype"].value == "nighttime" then
+    daytime = 0.5
+    error("Unknown file type: " .. player_settings["sas-filetype"].value)
+  end
+
+  local game_id = game.default_map_gen_settings.seed % 10000 -- First 4 digits
+  local path = string.format("simple-area-screenshots/%s_%s_%s.%s", game_id, format_time(e.tick), e.surface.name, file_extension)
+
 	game.take_screenshot({
 		by_player = e.player_index,
 		surface = e.surface,
@@ -147,7 +169,9 @@ script.on_event(defines.events.on_player_selected_area, function(e)
 		resolution = dimensions.resolution,
 		zoom = zoom,
     path = path,
-		daytime = 0
+    anti_alias = anti_alias,
+    quality = jpg_quality,
+		daytime = daytime,
 	})
   game.get_player(e.player_index).print({"simple-area-screenshots.screenshot-taken", path})
 end)
