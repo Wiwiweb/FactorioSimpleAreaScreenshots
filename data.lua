@@ -15,17 +15,17 @@ data:extend({
     associated_control_input = "sas-get-snipping-tool",
     action = "spawn-item",
     item_to_spawn = "sas-snipping-tool",
-    icon = "__simple-area-screenshots__/graphics/shortcut-icon-32.png",
+    icon = "__simple-area-screenshots__/graphics/camera-32.png",
     icon_size = 32,
-    small_icon = "__simple-area-screenshots__/graphics/shortcut-icon-32.png",
-    small_icon_size = 32,
+    small_icon = "__simple-area-screenshots__/graphics/camera-24.png",
+    small_icon_size = 24,
   },
 
   {
     type = "selection-tool",
     name = "sas-snipping-tool",
-    -- localised_name = { "item-name.snipping-tool" },
-    icon = "__simple-area-screenshots__/graphics/shortcut-icon-64.png",
+    icon = "__simple-area-screenshots__/graphics/camera-cursor-32.png",
+    icon_size = 32,
     subgroup = "tool",
     order = "c[automated-construction]-x",
     select = {
@@ -43,6 +43,14 @@ data:extend({
     flags = { "only-in-cursor", "not-stackable", "spawnable" },
     hidden = true,
     place_result = "sas-dummy-entity",
+    mouse_cursor = "sas-tool-cursor",
+  },
+  {
+    type = "mouse-cursor",
+    name = "sas-tool-cursor",
+    filename = "__simple-area-screenshots__/graphics/camera-cursor-32.png",
+    hot_pixel_x = 1,
+    hot_pixel_y = 1,
   },
   {
     type = "simple-entity-with-force",

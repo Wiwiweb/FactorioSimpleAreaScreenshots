@@ -4,5 +4,11 @@
   "title": "Simple Area Screenshots",
   "author": "Wiwiweb",
   "dependencies": ["base >= 1.2.0"],
-  "factorio_version": "1.2"
+  "factorio_version": "1.2",
+  "package": {
+    "ignore": [
+      "exclude-from-package",
+      "*~"
+    ]
+  }
 }
