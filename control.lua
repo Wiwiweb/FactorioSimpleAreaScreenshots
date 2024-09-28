@@ -256,7 +256,7 @@ script.on_event(defines.events.on_player_selected_area, function(e)
 
   if also_nighttime then
     local night_filename = string.format("%s_%s_%s_night.%s", game_id, format_time(e.tick), e.surface.name, file_extension)
-    local night_full_path = "simple-area-screenshots/" .. filename
+    local night_full_path = "simple-area-screenshots/" .. night_filename
     game.take_screenshot({
       by_player = e.player_index,
       surface = e.surface,
