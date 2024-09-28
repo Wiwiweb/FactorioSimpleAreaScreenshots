@@ -2,7 +2,8 @@ filesize = require("scripts/filesize")
 
 --- @class PlayerTable
 --- @field start_of_selection MapPosition?
---- @field increased_build_distance boolean
+--- @field tool_in_progress boolean
+--- @field map_view_during_tool_use boolean
 --- @field filesize_parameter float
 
 local max_resolution = 16384
@@ -11,7 +12,8 @@ local max_resolution = 16384
 local function player_init(player_index)
   storage.players[player_index] = {
     start_of_selection = nil,
-    increased_build_distance = false,
+    tool_in_progress = false,
+    map_view_during_tool_use = false,
     filesize_parameter = get_filesize_parameter(player_index),
   }
 end
@@ -62,25 +64,49 @@ local function get_dimensions_from_box(pos1, pos2, zoom)
 end
 
 script.on_event(defines.events.on_player_cursor_stack_changed, function(e)
+  log("on_player_cursor_stack_changed")
   local player = game.get_player(e.player_index) --[[@as LuaPlayer]]
   local player_table = storage.players[e.player_index]
   if not player_table then
     return
   end
   local cursor_stack = player.cursor_stack
-  if cursor_stack and cursor_stack.valid_for_read and cursor_stack.name == "sas-snipping-tool" then
-    if not player_table.increased_build_distance then
+  local holding_tool = cursor_stack and cursor_stack.valid_for_read and cursor_stack.name == "sas-snipping-tool"
+  if player_table.tool_in_progress then
+    if not holding_tool then
+      -- Tool use ended
+      log("TOOL USE ENDED")
+      player_table.tool_in_progress = false
+      player_table.map_view_during_tool_use = false
+      local build_distance_bonus = player.character_build_distance_bonus
+      if build_distance_bonus >= 1000000 then -- Safety check against mods who might have reduced it in the meantime.
+        player.character_build_distance_bonus = build_distance_bonus - 1000000
+      end
+    end
+  else
+    if holding_tool then
+      -- Tool use started
+      log("TOOL USE STARTED")
+      player_table.tool_in_progress = true
+      player_table.map_view_during_tool_use = player.render_mode == defines.render_mode.chart
       player.character_build_distance_bonus = player.character_build_distance_bonus + 1000000
-      player_table.increased_build_distance = true
-      log("INCREASED DISTANCE")
     end
-  elseif player_table.increased_build_distance then
-    local build_distance_bonus = player.character_build_distance_bonus
-    if build_distance_bonus >= 1000000 then -- Safety check against mods who might have reduced it in the meantime.
-      player.character_build_distance_bonus = build_distance_bonus - 1000000
+  end
+end)
+
+-- Detect map view (which prevents placing item and breaks the label)
+script.on_nth_tick(5, function(e)
+  -- Spread the load? Probably not worth the init cost
+  for player_index, player_table in pairs(storage.players) do
+    if player_table.tool_in_progress and not player_table.map_view_during_tool_use then
+      local player = game.get_player(player_index) --[[@as LuaPlayer]]
+      if player.render_mode == defines.render_mode.chart then
+        log("MAP VIEW WAS USED")
+          player_table.map_view_during_tool_use = true
+          player_table.start_of_selection = nil
+          player.cursor_stack.label = ""
+      end
     end
-    player_table.increased_build_distance = false
-    log("DECREASED DISTANCE")
   end
 end)
 
@@ -109,13 +135,15 @@ script.on_event(defines.events.on_built_entity, function(e)
   end
   cursor_stack.set_stack({ name = "sas-snipping-tool", count = 1 })
 
-  if player_table.start_of_selection == nil then -- New selection
-    player_table.start_of_selection = entity.position
-  else
-    local zoom = 1
-    local dimensions = get_dimensions_from_box(player_table.start_of_selection, entity.position, zoom)
-    local pixel_count = dimensions.resolution.x * dimensions.resolution.y
-    cursor_stack.label = string.format("%sx%spx (%s)", dimensions.resolution.x, dimensions.resolution.y, get_filesize_string(player_table, pixel_count))
+  if not player_table.map_view_during_tool_use then -- Can't calculate label anymore :(
+    if player_table.start_of_selection == nil then -- New selection
+      player_table.start_of_selection = entity.position
+    else
+      local zoom = 1
+      local dimensions = get_dimensions_from_box(player_table.start_of_selection, entity.position, zoom)
+      local pixel_count = dimensions.resolution.x * dimensions.resolution.y
+      cursor_stack.label = string.format("%sx%spx (%s)", dimensions.resolution.x, dimensions.resolution.y, get_filesize_string(player_table, pixel_count))
+    end
   end
 
   -- entity.destroy()
