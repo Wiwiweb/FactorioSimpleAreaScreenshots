@@ -104,7 +104,6 @@ script.on_event(defines.events.on_runtime_mod_setting_changed, function(e)
 end)
 
 script.on_event(defines.events.on_player_cursor_stack_changed, function(e)
-  log("on_player_cursor_stack_changed")
   local player = game.get_player(e.player_index) --[[@as LuaPlayer]]
   local player_table = storage.players[e.player_index]
   if not player_table then
@@ -115,7 +114,7 @@ script.on_event(defines.events.on_player_cursor_stack_changed, function(e)
   if player_table.tool_in_progress then
     if not holding_tool then
       -- Tool use ended
-      log("TOOL USE ENDED")
+      -- log("TOOL USE ENDED")
       player_table.tool_in_progress = false
       player_table.map_view_during_tool_use = false
       player_table.start_of_selection = nil
@@ -128,7 +127,7 @@ script.on_event(defines.events.on_player_cursor_stack_changed, function(e)
   else
     if holding_tool then
       -- Tool use started
-      log("TOOL USE STARTED")
+      -- log("TOOL USE STARTED")
       player_table.tool_in_progress = true
       player_table.map_view_during_tool_use = player.render_mode == defines.render_mode.chart
       player.character_build_distance_bonus = player.character_build_distance_bonus + 1000000
@@ -144,7 +143,7 @@ script.on_nth_tick(5, function(e)
     if player_table.tool_in_progress and not player_table.map_view_during_tool_use then
       local player = game.get_player(player_index) --[[@as LuaPlayer]]
       if player.render_mode == defines.render_mode.chart then
-        log("MAP VIEW WAS USED")
+        -- log("MAP VIEW WAS USED")
           player_table.map_view_during_tool_use = true
           player.cursor_stack.label = ""
       end
@@ -183,7 +182,7 @@ script.on_event("sas-decrease-zoom", function(e)
 end)
 
 script.on_event(defines.events.on_player_selected_area, function(e)
-  log("PLACED: " .. serpent.line(e.area))
+  -- log("PLACED: " .. serpent.line(e.area))
   local player = game.get_player(e.player_index) --[[@as LuaPlayer]]
   local player_table = storage.players[e.player_index]
   local cursor_stack = player.cursor_stack

@@ -80,11 +80,11 @@ data:extend({
     collision_mask = {
       layers = {},
     },
-    picture = {
-      filename = "__core__/graphics/crosshair-x32.png",
-      width = 32,
-      height = 32,
-    },
+    -- picture = {
+    --   filename = "__core__/graphics/crosshair-x32.png",
+    --   width = 32,
+    --   height = 32,
+    -- },
   },
   {
     type = "sprite",
@@ -92,5 +92,5 @@ data:extend({
     filename = "__simple-area-screenshots__/graphics/camera-white-32.png",
     size = 32,
     flags = { "icon" },
-  }
+  },
 })
