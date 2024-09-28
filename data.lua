@@ -86,4 +86,11 @@ data:extend({
       height = 32,
     },
   },
+  {
+    type = "sprite",
+    name = "sas_icon_white",
+    filename = "__simple-area-screenshots__/graphics/camera-white-32.png",
+    size = 32,
+    flags = { "icon" },
+  }
 })

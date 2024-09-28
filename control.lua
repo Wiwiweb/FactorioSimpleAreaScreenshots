@@ -221,7 +221,7 @@ script.on_event(defines.events.on_player_selected_area, function(e)
     if anti_alias then
       too_big_message = {"", too_big_message, " ", {"simple-area-screenshots.screenshot-too-big-anti-alias"}}
     end
-    game.get_player(e.player_index).print(too_big_message)
+    player.print(too_big_message)
     dimensions.resolution.x = math.min(dimensions.resolution.x, current_max_resolution)
     dimensions.resolution.y = math.min(dimensions.resolution.y, current_max_resolution)
   end
@@ -249,7 +249,8 @@ script.on_event(defines.events.on_player_selected_area, function(e)
   end
 
   local game_id = game.default_map_gen_settings.seed % 10000 -- First 4 digits
-  local path = string.format("simple-area-screenshots/%s_%s_%s.%s", game_id, format_time(e.tick), e.surface.name, file_extension)
+  local filename = string.format("%s_%s_%s.%s", game_id, format_time(e.tick), e.surface.name, file_extension)
+  local full_path = "simple-area-screenshots/" .. filename
 
 	game.take_screenshot({
 		by_player = e.player_index,
@@ -257,25 +258,26 @@ script.on_event(defines.events.on_player_selected_area, function(e)
 		position = dimensions.center,
 		resolution = dimensions.resolution,
 		zoom = zoom,
-    path = path,
+    path = full_path,
     anti_alias = anti_alias,
     quality = jpg_quality,
 		daytime = daytime,
 	})
 
   if also_nighttime then
-    local night_path = string.format("simple-area-screenshots/%s_%s_%s_night.%s", game_id, format_time(e.tick), e.surface.name, file_extension)
+    local night_filename = string.format("%s_%s_%s_night.%s", game_id, format_time(e.tick), e.surface.name, file_extension)
+    local night_full_path = "simple-area-screenshots/" .. filename
     game.take_screenshot({
       by_player = e.player_index,
       surface = e.surface,
       position = dimensions.center,
       resolution = dimensions.resolution,
       zoom = zoom,
-      path = night_path,
+      path = night_full_path,
       anti_alias = anti_alias,
       quality = jpg_quality,
       daytime = 0.5,
     })
   end
-  game.get_player(e.player_index).print({"simple-area-screenshots.screenshot-taken", path})
+  player.print({"simple-area-screenshots.screenshot-taken", filename})
 end)
