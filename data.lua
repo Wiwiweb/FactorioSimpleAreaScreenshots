@@ -5,13 +5,27 @@ data:extend({
     type = "custom-input",
     name = "sas-get-snipping-tool",
     key_sequence = "SHIFT + ALT + S",
-    order = "a",-- TODO
+    order = "a",
+  },
+  {
+    type = "custom-input",
+    name = "sas-increase-zoom",
+    key_sequence = "SHIFT + mouse-wheel-up",
+    consuming = "game-only",
+    order = "b",
+  },
+  {
+    type = "custom-input",
+    name = "sas-decrease-zoom",
+    key_sequence = "SHIFT + mouse-wheel-down",
+    consuming = "game-only",
+    order = "c",
   },
 
   {
     type = "shortcut",
     name = "sas-get-snipping-tool",
-    order = "a", -- TODO
+    order = "a",
     associated_control_input = "sas-get-snipping-tool",
     action = "spawn-item",
     item_to_spawn = "sas-snipping-tool",
@@ -27,7 +41,7 @@ data:extend({
     icon = "__simple-area-screenshots__/graphics/camera-cursor-32.png",
     icon_size = 32,
     subgroup = "tool",
-    order = "c[automated-construction]-x",
+    order = "c[automated-construction]-x", -- TODO
     select = {
       border_color = {r=1, g=0, b=0, a=1},
       cursor_box_type = "entity", -- Doesn't matter, nothing will be selected
