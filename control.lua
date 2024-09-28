@@ -32,24 +32,6 @@ local function format_time(tick)
   return string.format("%04d:%02d:%02d", hours, minutes, seconds)
 end
 
-script.on_init(function()
-  --- @type table<uint, PlayerTable>
-  storage.players = {}
-
-  for _, player in pairs(game.players) do
-    player_init(player.index)
-  end
-end)
-
-script.on_event(defines.events.on_player_created, function(e)
-  player_init(e.player_index)
-end)
-
-script.on_event(defines.events.on_runtime_mod_setting_changed, function(e)
-  if e.setting == "sas-filetype" or e.setting == "sas-jpg-quality" then
-    storage.players[e.player_index].filesize_parameter = get_filesize_parameter(e.player_index)
-  end
-end)
 
 --- @param pos1 MapPosition
 --- @param pos2 MapPosition
@@ -81,6 +63,43 @@ local function update_cursor_label(player_table, cursor_stack)
       zoom, dimensions.resolution.x, dimensions.resolution.y, get_filesize_string(player_table, pixel_count))
   end
 end
+
+local function update_zoom(player_index, direction)
+  local player_table = storage.players[player_index]
+  if not player_table then return end
+  if not player_table.tool_in_progress then return end -- Only allow this shortcut when holding the tool
+
+  local new_zoom_index = player_table.zoom_index + direction
+  if new_zoom_index <= 0 or #zoom_levels < new_zoom_index then return end
+
+  player_table.zoom_index = new_zoom_index
+  local player = game.get_player(player_index) --[[@as LuaPlayer]]
+  local cursor_stack = player.cursor_stack
+  if cursor_stack == nil then
+    return
+  end
+  update_cursor_label(player_table, cursor_stack)
+end
+
+
+script.on_init(function()
+  --- @type table<uint, PlayerTable>
+  storage.players = {}
+
+  for _, player in pairs(game.players) do
+    player_init(player.index)
+  end
+end)
+
+script.on_event(defines.events.on_player_created, function(e)
+  player_init(e.player_index)
+end)
+
+script.on_event(defines.events.on_runtime_mod_setting_changed, function(e)
+  if e.setting == "sas-filetype" or e.setting == "sas-jpg-quality" then
+    storage.players[e.player_index].filesize_parameter = get_filesize_parameter(e.player_index)
+  end
+end)
 
 script.on_event(defines.events.on_player_cursor_stack_changed, function(e)
   log("on_player_cursor_stack_changed")
@@ -167,23 +186,6 @@ end, {
   { filter = "name", name = "sas-dummy-entity" },
   { filter = "ghost_name", name = "sas-dummy-entity" }, -- TODO remove?
 })
-
-local function update_zoom(player_index, direction)
-  local player_table = storage.players[player_index]
-  if not player_table then return end
-  if not player_table.tool_in_progress then return end -- Only allow this shortcut when holding the tool
-
-  local new_zoom_index = player_table.zoom_index + direction
-  if new_zoom_index <= 0 or #zoom_levels < new_zoom_index then return end
-
-  player_table.zoom_index = new_zoom_index
-  local player = game.get_player(player_index) --[[@as LuaPlayer]]
-  local cursor_stack = player.cursor_stack
-  if cursor_stack == nil then
-    return
-  end
-  update_cursor_label(player_table, cursor_stack)
-end
 
 script.on_event("sas-increase-zoom", function(e)
   update_zoom(e.player_index, 1)
