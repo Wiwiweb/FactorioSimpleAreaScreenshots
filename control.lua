@@ -10,6 +10,7 @@ filesize = require("scripts/filesize")
 
 local max_resolution = 16384
 local zoom_levels = {0.125, 0.25, 0.5, 1, 2, 4, 8, 16, 32}
+local displayed_zoom_levels = {"8", "4", "2", "1", "1/2", "1/4", "1/8", "1/16", "1/32"}
 
 --- @param player_index uint
 local function player_init(player_index)
@@ -51,16 +52,17 @@ local function get_dimensions_from_box(pos1, pos2, zoom)
 end
 
 local function update_cursor_label(player_table, cursor_stack)
-  local zoom = zoom_levels[player_table.zoom_index]
+  local display_zoom = displayed_zoom_levels[player_table.zoom_index] -- Invert "zoom" because "bigger number = more close-up" makes a lot more sense 
   if player_table.map_view_during_tool_use or
-     player_table.start_of_selection == nil or
-     player_table.start_of_selection == player_table.end_of_selection then
-    cursor_stack.label = string.format("Zoom: x%s", zoom)
+  player_table.start_of_selection == nil or
+  player_table.start_of_selection == player_table.end_of_selection then
+    cursor_stack.label = string.format("Zoom: x%s", display_zoom)
   else
+    local zoom = zoom_levels[player_table.zoom_index]
     local dimensions = get_dimensions_from_box(player_table.start_of_selection, player_table.end_of_selection, zoom)
     local pixel_count = dimensions.resolution.x * dimensions.resolution.y
     cursor_stack.label = string.format("Zoom: x%s | %sx%spx (%s)",
-      zoom, dimensions.resolution.x, dimensions.resolution.y, get_filesize_string(player_table, pixel_count))
+      display_zoom, dimensions.resolution.x, dimensions.resolution.y, get_filesize_string(player_table, pixel_count))
   end
 end
 
@@ -188,10 +190,10 @@ end, {
 })
 
 script.on_event("sas-increase-zoom", function(e)
-  update_zoom(e.player_index, 1)
+  update_zoom(e.player_index, -1) -- Actually decrease, on purpose
 end)
 script.on_event("sas-decrease-zoom", function(e)
-  update_zoom(e.player_index, -1)
+  update_zoom(e.player_index, 1) -- Actually increase, on purpose
 end)
 
 script.on_event(defines.events.on_player_selected_area, function(e)
