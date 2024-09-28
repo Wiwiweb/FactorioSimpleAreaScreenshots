@@ -156,20 +156,7 @@ script.on_event(defines.events.on_built_entity, function(e)
   local player = game.get_player(e.player_index) --[[@as LuaPlayer]]
   local player_table = storage.players[e.player_index]
   local entity = e.created_entity
-  local is_ghost = entity.name == "entity-ghost"
 
-  if is_ghost then
-    -- instantly revive the entity if it is a ghost
-    local _, new_entity = entity.silent_revive()
-    if not new_entity then
-      return
-    end
-    entity = new_entity
-  end
-  -- make the entity invincible to prevent attacks
-  entity.destructible = false
-
-  log(entity.position)
   -- Cursor item will have been used to "place" the dummy, restore it.
   local cursor_stack = player.cursor_stack
   if cursor_stack == nil then
@@ -183,10 +170,9 @@ script.on_event(defines.events.on_built_entity, function(e)
   player_table.end_of_selection = entity.position
   update_cursor_label(player_table, cursor_stack)
 
-  -- entity.destroy()
+  entity.destroy()
 end, {
-  { filter = "name", name = "sas-dummy-entity" },
-  { filter = "ghost_name", name = "sas-dummy-entity" }, -- TODO remove?
+  { filter = "name", name = "sas-dummy-entity" }
 })
 
 script.on_event("sas-increase-zoom", function(e)
