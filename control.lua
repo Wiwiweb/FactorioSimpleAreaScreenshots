@@ -210,13 +210,22 @@ script.on_event(defines.events.on_player_selected_area, function(e)
   if dimensions.resolution.x <= 0 or dimensions.resolution.y <= 0 then
     return -- Silently abort
   end
-  if dimensions.resolution.x > max_resolution or dimensions.resolution.y > max_resolution then
-    game.get_player(e.player_index).print({"simple-area-screenshots.screenshot-too-big", max_resolution})
-    resX = math.min(resX, max_resolution)
-    resY = math.min(resY, max_resolution)
-  end
 
   local player_settings = settings.get_player_settings(player)
+  local anti_alias = player_settings["sas-anti-alias"].value --[[@as boolean]]
+
+  local current_max_resolution = max_resolution
+  if anti_alias then current_max_resolution = current_max_resolution / 2 end
+  if dimensions.resolution.x > current_max_resolution or dimensions.resolution.y > current_max_resolution then
+    local too_big_message = {"simple-area-screenshots.screenshot-too-big", current_max_resolution}
+    if anti_alias then
+      too_big_message = {"", too_big_message, " ", {"simple-area-screenshots.screenshot-too-big-anti-alias"}}
+    end
+    game.get_player(e.player_index).print(too_big_message)
+    dimensions.resolution.x = math.min(dimensions.resolution.x, current_max_resolution)
+    dimensions.resolution.y = math.min(dimensions.resolution.y, current_max_resolution)
+  end
+
   local file_extension
   local jpg_quality
   if player_settings["sas-filetype"].value == "JPEG" then
@@ -227,8 +236,6 @@ script.on_event(defines.events.on_player_selected_area, function(e)
   else
     error("Unknown file type: " .. player_settings["sas-filetype"].value)
   end
-
-  local anti_alias = player_settings["sas-anti-alias"].value --[[@as boolean]]
 
   local daytime
   local also_nighttime = false
