@@ -1,4 +1,8 @@
-local collision_mask_util = require("__core__/lualib/collision-mask-util")
+local invisible_selection = {
+  border_color = {a=0}, -- Invisible
+  cursor_box_type = "entity", -- Doesn't matter, nothing will be selected
+  mode = "nothing",
+}
 
 data:extend({
   {
@@ -38,6 +42,7 @@ data:extend({
   {
     type = "selection-tool",
     name = "sas-snipping-tool",
+    localised_name = {"item-name.sas-snipping-tool"},
     icon = "__simple-area-screenshots__/graphics/camera-cursor-32.png",
     icon_size = 32,
     subgroup = "tool",
@@ -47,11 +52,9 @@ data:extend({
       cursor_box_type = "entity", -- Doesn't matter, nothing will be selected
       mode = "nothing",
     },
-    alt_select = {
-      border_color = {r=0, g=0, b=1, a=1},
-      cursor_box_type = "entity", -- Doesn't matter, nothing will be selected
-      mode = "nothing",
-    },
+    alt_select = invisible_selection,
+    super_forced_select = invisible_selection,
+    reverse_select = invisible_selection,
     draw_label_for_cursor_render = true,
     stack_size = 1,
     flags = { "only-in-cursor", "not-stackable", "spawnable" },
@@ -81,6 +84,8 @@ data:extend({
     collision_mask = {
       layers = {},
     },
+    subgroup = "other",
+    order = "zzzzz",
     -- picture = {
     --   filename = "__core__/graphics/crosshair-x32.png",
     --   width = 32,
