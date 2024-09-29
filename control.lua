@@ -119,9 +119,11 @@ script.on_event(defines.events.on_player_cursor_stack_changed, function(e)
       player_table.map_view_during_tool_use = false
       player_table.start_of_selection = nil
       player_table.end_of_selection = nil
-      local build_distance_bonus = player.character_build_distance_bonus
-      if build_distance_bonus >= 1000000 then -- Safety check against mods who might have reduced it in the meantime.
-        player.character_build_distance_bonus = build_distance_bonus - 1000000
+      if player.controller_type ~= defines.controllers.editor and player.controller_type ~= defines.controllers.god then
+        local build_distance_bonus = player.character_build_distance_bonus
+        if build_distance_bonus >= 1000000 then -- Safety check against mods who might have reduced it in the meantime.
+          player.character_build_distance_bonus = build_distance_bonus - 1000000
+        end
       end
     end
   else
@@ -130,7 +132,10 @@ script.on_event(defines.events.on_player_cursor_stack_changed, function(e)
       -- log("TOOL USE STARTED")
       player_table.tool_in_progress = true
       player_table.map_view_during_tool_use = player.render_mode == defines.render_mode.chart
-      player.character_build_distance_bonus = player.character_build_distance_bonus + 1000000
+      -- TODO: Check this works with disconnected players (hold tool, disconnect, reconnect, do you get infinite build range?)
+      if player.controller_type ~= defines.controllers.editor and player.controller_type ~= defines.controllers.god then
+        player.character_build_distance_bonus = player.character_build_distance_bonus + 1000000
+      end
       update_cursor_label(player_table, cursor_stack)
     end
   end

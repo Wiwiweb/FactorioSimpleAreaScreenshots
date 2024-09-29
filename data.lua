@@ -41,7 +41,7 @@ data:extend({
     icon = "__simple-area-screenshots__/graphics/camera-cursor-32.png",
     icon_size = 32,
     subgroup = "tool",
-    order = "c[automated-construction]-x", -- TODO
+    order = "c[automated-construction]-z",
     select = {
       border_color = {r=1, g=0, b=0, a=1},
       cursor_box_type = "entity", -- Doesn't matter, nothing will be selected
@@ -69,6 +69,7 @@ data:extend({
   {
     type = "simple-entity-with-force",
     name = "sas-dummy-entity",
+    localised_name = "Simple Area Screenshots dummy entity",
     flags = { "not-on-map", "placeable-off-grid", "not-deconstructable", "not-blueprintable" },
     hidden = true,
     selectable_in_game = false,
