@@ -178,12 +178,12 @@ end)
 script.on_nth_tick(5, function(e)
   -- Spread the load? Probably not worth the init cost
   for player_index, player_table in pairs(storage.players) do
-    if player_table.tool_in_progress and not player_table.map_view_during_tool_use and player_table.start_of_selection ~= nil then
+    if player_table.tool_in_progress and not player_table.map_view_during_tool_use then
       local player = game.get_player(player_index) --[[@as LuaPlayer]]
       if player.render_mode == defines.render_mode.chart then
         -- log("MAP VIEW WAS USED")
-          player_table.map_view_during_tool_use = true
-          player.cursor_stack.label = ""
+        player_table.map_view_during_tool_use = true
+        update_cursor_label(player_index, player_table, player.cursor_stack)
       end
     end
   end
