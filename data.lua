@@ -69,13 +69,6 @@ data:extend({
     mouse_cursor = "sas-tool-cursor",
   },
   {
-    type = "mouse-cursor",
-    name = "sas-tool-cursor",
-    filename = "__simple-area-screenshots__/graphics/camera-cursor-32.png",
-    hot_pixel_x = 1,
-    hot_pixel_y = 1,
-  },
-  {
     type = "simple-entity-with-force",
     name = "sas-dummy-entity",
     localised_name = "Simple Area Screenshots dummy entity",
@@ -101,6 +94,13 @@ data:extend({
     --   width = 32,
     --   height = 32,
     -- },
+  },
+  {
+    type = "mouse-cursor",
+    name = "sas-tool-cursor",
+    filename = "__simple-area-screenshots__/graphics/camera-cursor-32.png",
+    hot_pixel_x = 1,
+    hot_pixel_y = 1,
   },
   {
     type = "sprite",
