@@ -9,8 +9,9 @@ filesize = require("scripts/filesize")
 --- @field zoom_index uint
 
 local max_resolution = 16384
-local zoom_levels = {0.03125, 0.0625, 0.125, 0.25, 0.5, 1, 2, 4, 8}
-local displayed_zoom_levels = {"1/32", "1/16", "1/8", "1/4", "1/2", "1", "2", "4", "8"}
+---@type float[]|string[]
+local zoom_levels = {"auto", 0.03125, 0.0625, 0.125, 0.25, 0.5, 1, 2, 4, 8}
+local displayed_zoom_levels = {"Auto", "x1/32", "x1/16", "x1/8", "x1/4", "x1/2", "x1", "x2", "x4", "x8"}
 
 --- @param player_index uint
 local function player_init(player_index)
@@ -20,7 +21,7 @@ local function player_init(player_index)
     tool_in_progress = false,
     map_view_during_tool_use = false,
     filesize_parameter = get_filesize_parameter(player_index),
-    zoom_index = 6,
+    zoom_index = 1,
   }
 end
 
@@ -36,7 +37,7 @@ end
 
 --- @param pos1 MapPosition
 --- @param pos2 MapPosition
---- @param zoom uint
+--- @param zoom float
 local function get_dimensions_from_box(pos1, pos2, zoom)
   local width = math.abs(pos1.x - pos2.x)
   local height = math.abs(pos1.y - pos2.y)
@@ -51,17 +52,46 @@ local function get_dimensions_from_box(pos1, pos2, zoom)
   }
 end
 
-local function update_cursor_label(player_table, cursor_stack)
-  local display_zoom = displayed_zoom_levels[player_table.zoom_index]
-  if player_table.map_view_during_tool_use or
-  player_table.start_of_selection == nil or
-  player_table.start_of_selection == player_table.end_of_selection then
-    cursor_stack.label = string.format("Zoom: x%s", display_zoom)
+---@return uint zoom_index
+---@return float zoom_level
+local function get_auto_zoom_index_and_level(pos1, pos2, auto_zoom_max_res)
+  local width = math.abs(pos1.x - pos2.x)
+  local height = math.abs(pos1.y - pos2.y)
+  local zoom_index = 7 -- Start at x1
+  local zoom_level
+  while zoom_index > 1 do -- Skip the first one because it's "auto" itself
+    zoom_level = zoom_levels[zoom_index] --[[@as float]]
+    local resX = math.floor(width * 32 * zoom_level)
+    local resY = math.floor(height * 32 * zoom_level)
+    if resX < auto_zoom_max_res and resY < auto_zoom_max_res then
+      break -- That's the one
+    end
+    zoom_index = zoom_index - 1
+  end
+  return zoom_index, zoom_level
+end
+
+local function update_cursor_label(player_index, player_table, cursor_stack)
+  local display_zoom
+
+  local sel_start = player_table.start_of_selection
+  local sel_end = player_table.end_of_selection
+  if player_table.map_view_during_tool_use or sel_start == nil or (sel_start.x == sel_end.x and sel_start.y == sel_end.y) then
+    display_zoom = displayed_zoom_levels[player_table.zoom_index]
+    cursor_stack.label = string.format("Zoom: %s", display_zoom)
   else
-    local zoom = zoom_levels[player_table.zoom_index]
-    local dimensions = get_dimensions_from_box(player_table.start_of_selection, player_table.end_of_selection, zoom)
+    local zoom_level = zoom_levels[player_table.zoom_index]
+    if zoom_level == "auto" then
+      local auto_zoom_max_res = settings.get_player_settings(player_index)["sas-autozoom-max-px"].value
+      auto_zoom_index, zoom_level = get_auto_zoom_index_and_level(sel_start, sel_end, auto_zoom_max_res)
+      display_zoom = string.format("Auto (%s)", displayed_zoom_levels[auto_zoom_index])
+    else
+      display_zoom = displayed_zoom_levels[player_table.zoom_index]
+    end
+    ---@cast zoom_level float
+    local dimensions = get_dimensions_from_box(sel_start, sel_end, zoom_level)
     local pixel_count = dimensions.resolution.x * dimensions.resolution.y
-    cursor_stack.label = string.format("Zoom: x%s | %sx%spx (%s)",
+    cursor_stack.label = string.format("Zoom: %s | %sx%spx (%s)",
       display_zoom, dimensions.resolution.x, dimensions.resolution.y, get_filesize_string(player_table, pixel_count))
   end
 end
@@ -80,7 +110,7 @@ local function update_zoom(player_index, direction)
   if cursor_stack == nil then
     return
   end
-  update_cursor_label(player_table, cursor_stack)
+  update_cursor_label(player_index, player_table, cursor_stack)
 end
 
 
@@ -136,7 +166,7 @@ script.on_event(defines.events.on_player_cursor_stack_changed, function(e)
       if player.controller_type ~= defines.controllers.editor and player.controller_type ~= defines.controllers.god then
         player.character_build_distance_bonus = player.character_build_distance_bonus + 1000000
       end
-      update_cursor_label(player_table, cursor_stack)
+      update_cursor_label(e.player_index, player_table, cursor_stack)
     end
   end
 end)
@@ -172,7 +202,7 @@ script.on_event(defines.events.on_built_entity, function(e)
     player_table.start_of_selection = entity.position
   end
   player_table.end_of_selection = entity.position
-  update_cursor_label(player_table, cursor_stack)
+  update_cursor_label(e.player_index, player_table, cursor_stack)
 
   entity.destroy()
 end, {
@@ -198,14 +228,21 @@ script.on_event(defines.events.on_player_selected_area, function(e)
   player_table.start_of_selection = nil
   player_table.end_of_selection = nil
 
-  local zoom = zoom_levels[player_table.zoom_index]
-  local dimensions = get_dimensions_from_box(e.area.left_top, e.area.right_bottom, zoom)
+  local player_settings = settings.get_player_settings(player)
+
+  local zoom_level = zoom_levels[player_table.zoom_index]
+  if zoom_level == "auto" then
+    local auto_zoom_max_res = player_settings["sas-autozoom-max-px"].value
+    _auto_zoom_index, zoom_level = get_auto_zoom_index_and_level(e.area.left_top, e.area.right_bottom, auto_zoom_max_res)
+  end
+  ---@cast zoom_level float
+
+  local dimensions = get_dimensions_from_box(e.area.left_top, e.area.right_bottom, zoom_level)
 
   if dimensions.resolution.x <= 0 or dimensions.resolution.y <= 0 then
     return -- Silently abort
   end
 
-  local player_settings = settings.get_player_settings(player)
   local anti_alias = player_settings["sas-anti-alias"].value --[[@as boolean]]
 
   local current_max_resolution = max_resolution
@@ -251,7 +288,7 @@ script.on_event(defines.events.on_player_selected_area, function(e)
 		surface = e.surface,
 		position = dimensions.center,
 		resolution = dimensions.resolution,
-		zoom = zoom,
+		zoom = zoom_level,
     path = full_path,
     anti_alias = anti_alias,
     quality = jpg_quality,
@@ -266,7 +303,7 @@ script.on_event(defines.events.on_player_selected_area, function(e)
       surface = e.surface,
       position = dimensions.center,
       resolution = dimensions.resolution,
-      zoom = zoom,
+      zoom = zoom_level,
       path = night_full_path,
       anti_alias = anti_alias,
       quality = jpg_quality,

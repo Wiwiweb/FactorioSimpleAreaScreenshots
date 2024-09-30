@@ -31,4 +31,13 @@ data.extend{
     allowed_values = {"daytime", "nighttime", "both", "noop"},
     order = "d",
   },
+  {
+    type = "int-setting",
+    name = "sas-autozoom-max-px",
+    setting_type = "runtime-per-user",
+    minimum_value = 1,
+    maximum_value = 16384,
+    default_value = 2000,
+    order = "e",
+  },
 }
