@@ -7,7 +7,7 @@
   "factorio_version": "1.2",
   "package": {
     "ignore": [
-      "exclude-from-package",
+      "exclude-from-package/*",
       "*~"
     ]
   }
