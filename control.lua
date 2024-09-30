@@ -245,6 +245,7 @@ local function on_area_selected(e)
   end
 
   local anti_alias = player_settings["sas-anti-alias"].value --[[@as boolean]]
+  local alt_mode = player_settings["sas-alt-mode"].value --[[@as boolean]]
 
   local current_max_resolution = max_resolution
   if anti_alias then current_max_resolution = current_max_resolution / 2 end
@@ -291,6 +292,7 @@ local function on_area_selected(e)
 		resolution = dimensions.resolution,
 		zoom = zoom_level,
     path = full_path,
+    show_entity_info = alt_mode,
     anti_alias = anti_alias,
     quality = jpg_quality,
 		daytime = daytime,
@@ -306,6 +308,7 @@ local function on_area_selected(e)
       resolution = dimensions.resolution,
       zoom = zoom_level,
       path = night_full_path,
+      show_entity_info = alt_mode,
       anti_alias = anti_alias,
       quality = jpg_quality,
       daytime = 0.5,

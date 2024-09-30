@@ -18,7 +18,7 @@ data.extend{
   },
   {
     type = "bool-setting",
-    name = "sas-anti-alias",
+    name = "sas-alt-mode",
     setting_type = "runtime-per-user",
     default_value = true,
     order = "c",
@@ -32,12 +32,19 @@ data.extend{
     order = "d",
   },
   {
+    type = "bool-setting",
+    name = "sas-anti-alias",
+    setting_type = "runtime-per-user",
+    default_value = true,
+    order = "e",
+  },
+  {
     type = "int-setting",
     name = "sas-autozoom-max-px",
     setting_type = "runtime-per-user",
     minimum_value = 1,
     maximum_value = 16384,
     default_value = 2000,
-    order = "e",
+    order = "f",
   },
 }
