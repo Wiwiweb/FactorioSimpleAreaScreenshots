@@ -217,7 +217,7 @@ script.on_event("sas-decrease-zoom", function(e)
   update_zoom(e.player_index, -1)
 end)
 
-script.on_event(defines.events.on_player_selected_area, function(e)
+local function on_area_selected(e)
   -- log("PLACED: " .. serpent.line(e.area))
   local player = game.get_player(e.player_index) --[[@as LuaPlayer]]
   local player_table = storage.players[e.player_index]
@@ -312,4 +312,6 @@ script.on_event(defines.events.on_player_selected_area, function(e)
     })
   end
   player.print({"simple-area-screenshots.screenshot-taken", filename})
-end)
+end
+script.on_event(defines.events.on_player_selected_area, on_area_selected)
+script.on_event(defines.events.on_player_alt_selected_area, on_area_selected)
