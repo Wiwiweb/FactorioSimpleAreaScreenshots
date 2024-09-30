@@ -206,7 +206,8 @@ script.on_event(defines.events.on_built_entity, function(e)
 
   entity.destroy()
 end, {
-  { filter = "name", name = "sas-dummy-entity" }
+  { filter = "name", name = "sas-dummy-entity" },
+  { filter = "ghost_name", name = "sas-dummy-entity" },
 })
 
 script.on_event("sas-increase-zoom", function(e)

@@ -52,7 +52,11 @@ data:extend({
       cursor_box_type = "entity", -- Doesn't matter, nothing will be selected
       mode = "nothing",
     },
-    alt_select = invisible_selection,
+    alt_select = {
+      border_color = {r=1, g=0, b=0, a=1}, -- Just to keep the box around when changing zoom with shift+scroll
+      cursor_box_type = "entity", -- Doesn't matter, nothing will be selected
+      mode = "nothing",
+    },
     super_forced_select = invisible_selection,
     reverse_select = invisible_selection,
     draw_label_for_cursor_render = true,
@@ -73,16 +77,20 @@ data:extend({
     type = "simple-entity-with-force",
     name = "sas-dummy-entity",
     localised_name = "Simple Area Screenshots dummy entity",
-    flags = { "not-on-map", "placeable-off-grid", "not-deconstructable", "not-blueprintable" },
+    icon = "__simple-area-screenshots__/graphics/camera-32.png",
+    icon_size = 32,
+    flags = {"not-on-map", "placeable-off-grid", "player-creation", "not-deconstructable"}, -- Must be blueprintable to allow ghosts
     hidden = true,
-    selectable_in_game = false,
     allow_copy_paste = false,
     alert_when_damaged = false,
+    collision_mask = {
+      layers = {},
+    },
     build_sound = {
       filename = "__core__/sound/silence-1sec.ogg",
     },
-    collision_mask = {
-      layers = {},
+    created_smoke = {
+      smoke_name = "sas-empty-smoke",
     },
     subgroup = "other",
     order = "zzzzz",
@@ -98,5 +106,15 @@ data:extend({
     filename = "__simple-area-screenshots__/graphics/camera-white-32.png",
     size = 32,
     flags = { "icon" },
+  },
+  {
+    type = "trivial-smoke",
+    name = "sas-empty-smoke",
+    animation = {
+      filename = "__simple-area-screenshots__/graphics/empty.png",
+      size = { 1, 1 },
+      frame_count = 2,
+    },
+    duration = 1,
   },
 })
