@@ -45,8 +45,8 @@ data:extend({
     type = "selection-tool",
     name = "sas-snipping-tool",
     localised_name = {"item-name.sas-snipping-tool"},
-    icon = "__simple-area-screenshots__/graphics/camera-cursor-32.png",
-    icon_size = 32,
+    icon = "__simple-area-screenshots__/graphics/empty.png",
+    icon_size = 1,
     subgroup = "tool",
     order = "c[automated-construction]-z",
     select = {
@@ -69,13 +69,14 @@ data:extend({
     mouse_cursor = "sas-tool-cursor",
   },
   {
-    type = "simple-entity-with-force",
+    type = "simple-entity-with-force", -- Used to detect the position of the mouse dragging before the click is released
     name = "sas-dummy-entity",
     localised_name = "Simple Area Screenshots dummy entity",
     icon = "__simple-area-screenshots__/graphics/camera-32.png",
     icon_size = 32,
     flags = {"not-on-map", "placeable-off-grid", "player-creation", "not-deconstructable"}, -- Must be blueprintable to allow ghosts
     hidden = true,
+    selectable_in_game = false,
     allow_copy_paste = false,
     alert_when_damaged = false,
     collision_mask = {
