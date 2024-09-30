@@ -9,8 +9,8 @@ filesize = require("scripts/filesize")
 --- @field zoom_index uint
 
 local max_resolution = 16384
-local zoom_levels = {0.125, 0.25, 0.5, 1, 2, 4, 8, 16, 32}
-local displayed_zoom_levels = {"8", "4", "2", "1", "1/2", "1/4", "1/8", "1/16", "1/32"}
+local zoom_levels = {0.03125, 0.0625, 0.125, 0.25, 0.5, 1, 2, 4, 8}
+local displayed_zoom_levels = {"1/32", "1/16", "1/8", "1/4", "1/2", "1", "2", "4", "8"}
 
 --- @param player_index uint
 local function player_init(player_index)
@@ -20,7 +20,7 @@ local function player_init(player_index)
     tool_in_progress = false,
     map_view_during_tool_use = false,
     filesize_parameter = get_filesize_parameter(player_index),
-    zoom_index = 4,
+    zoom_index = 6,
   }
 end
 
@@ -52,7 +52,7 @@ local function get_dimensions_from_box(pos1, pos2, zoom)
 end
 
 local function update_cursor_label(player_table, cursor_stack)
-  local display_zoom = displayed_zoom_levels[player_table.zoom_index] -- Invert "zoom" because "bigger number = more close-up" makes a lot more sense 
+  local display_zoom = displayed_zoom_levels[player_table.zoom_index]
   if player_table.map_view_during_tool_use or
   player_table.start_of_selection == nil or
   player_table.start_of_selection == player_table.end_of_selection then
@@ -180,10 +180,10 @@ end, {
 })
 
 script.on_event("sas-increase-zoom", function(e)
-  update_zoom(e.player_index, -1) -- Actually decrease, on purpose
+  update_zoom(e.player_index, 1)
 end)
 script.on_event("sas-decrease-zoom", function(e)
-  update_zoom(e.player_index, 1) -- Actually increase, on purpose
+  update_zoom(e.player_index, -1)
 end)
 
 script.on_event(defines.events.on_player_selected_area, function(e)
