@@ -34,6 +34,9 @@ local function format_time(tick)
   return string.format("%04d:%02d:%02d", hours, minutes, seconds)
 end
 
+local function is_holding_tool(cursor_stack)
+  return cursor_stack ~= nil and cursor_stack.valid_for_read and  cursor_stack.name == "sas-snipping-tool"
+end
 
 --- @param pos1 MapPosition
 --- @param pos2 MapPosition
@@ -140,7 +143,7 @@ script.on_event(defines.events.on_player_cursor_stack_changed, function(e)
     return
   end
   local cursor_stack = player.cursor_stack
-  local holding_tool = cursor_stack and cursor_stack.valid_for_read and cursor_stack.name == "sas-snipping-tool"
+  local holding_tool = is_holding_tool(cursor_stack)
   if player_table.tool_in_progress then
     if not holding_tool then
       -- Tool use ended
@@ -175,13 +178,28 @@ end)
 script.on_nth_tick(5, function(e)
   -- Spread the load? Probably not worth the init cost
   for player_index, player_table in pairs(storage.players) do
-    if player_table.tool_in_progress and not player_table.map_view_during_tool_use then
+    if player_table.tool_in_progress and not player_table.map_view_during_tool_use and player_table.start_of_selection ~= nil then
       local player = game.get_player(player_index) --[[@as LuaPlayer]]
       if player.render_mode == defines.render_mode.chart then
         -- log("MAP VIEW WAS USED")
           player_table.map_view_during_tool_use = true
           player.cursor_stack.label = ""
       end
+    end
+  end
+end)
+
+-- Resets label when pressing Q while holding tool
+script.on_event("sas-clear-cursor", function(e)
+  local player_table = storage.players[e.player_index]
+  if player_table.tool_in_progress then
+    local player = game.get_player(e.player_index) --[[@as LuaPlayer]]
+    local cursor_stack = player.cursor_stack
+    if is_holding_tool(cursor_stack) then
+      player_table.start_of_selection = nil
+      player_table.end_of_selection = nil
+      player_table.map_view_during_tool_use = false
+      update_cursor_label(e.player_index, player_table, cursor_stack)
     end
   end
 end)
@@ -222,9 +240,10 @@ local function on_area_selected(e)
   local player = game.get_player(e.player_index) --[[@as LuaPlayer]]
   local player_table = storage.players[e.player_index]
   local cursor_stack = player.cursor_stack
-  if cursor_stack == nil or not cursor_stack.valid_for_read or cursor_stack.name ~= "sas-snipping-tool" then
+  if not is_holding_tool(cursor_stack) then
     return
   end
+  ---@cast cursor_stack -?
   cursor_stack.clear()
   player_table.start_of_selection = nil
   player_table.end_of_selection = nil

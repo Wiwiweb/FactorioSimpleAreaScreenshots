@@ -27,6 +27,13 @@ data:extend({
     consuming = "game-only",
     order = "c",
   },
+  {
+    type = "custom-input",
+    name = "sas-clear-cursor",
+    key_sequence = "",
+    linked_game_control = "clear-cursor",
+    order = "z",
+  },
 
   {
     type = "shortcut",
