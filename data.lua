@@ -9,6 +9,8 @@ data:extend({
     type = "custom-input",
     name = "sas-get-snipping-tool",
     key_sequence = "SHIFT + ALT + S",
+    action = "spawn-item",
+    item_to_spawn = "sas-snipping-tool",
     order = "a",
   },
   {
