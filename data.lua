@@ -4,6 +4,12 @@ local invisible_selection = {
   mode = "nothing",
 }
 
+local red_selection = {
+  border_color = {r=1, g=0, b=0, a=1},
+  cursor_box_type = "entity", -- Doesn't matter, nothing will be selected
+  mode = "nothing",
+}
+
 data:extend({
   {
     type = "custom-input",
@@ -17,14 +23,12 @@ data:extend({
     type = "custom-input",
     name = "sas-increase-zoom",
     key_sequence = "SHIFT + mouse-wheel-up",
-    consuming = "game-only",
     order = "b",
   },
   {
     type = "custom-input",
     name = "sas-decrease-zoom",
     key_sequence = "SHIFT + mouse-wheel-down",
-    consuming = "game-only",
     order = "c",
   },
   {
@@ -56,16 +60,8 @@ data:extend({
     icon_size = 1,
     subgroup = "tool",
     order = "c[automated-construction]-z",
-    select = {
-      border_color = {r=1, g=0, b=0, a=1},
-      cursor_box_type = "entity", -- Doesn't matter, nothing will be selected
-      mode = "nothing",
-    },
-    alt_select = {
-      border_color = {r=1, g=0, b=0, a=1}, -- Just to keep the box around when changing zoom with shift+scroll
-      cursor_box_type = "entity", -- Doesn't matter, nothing will be selected
-      mode = "nothing",
-    },
+    select = red_selection,
+    alt_select = red_selection,
     super_forced_select = invisible_selection,
     reverse_select = invisible_selection,
     draw_label_for_cursor_render = true,
