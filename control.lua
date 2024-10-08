@@ -31,7 +31,7 @@ local function format_time(tick)
   local seconds = total_seconds % 60
   local minutes = math.floor(total_seconds / 60) % 60
   local hours = math.floor(total_seconds / 3600)
-  return string.format("%04dh%02dm%02s", hours, minutes, seconds)
+  return string.format("%04dh%02dm%02ss", hours, minutes, seconds)
 end
 
 local function is_holding_tool(cursor_stack)
