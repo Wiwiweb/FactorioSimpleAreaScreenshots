@@ -207,7 +207,7 @@ end)
 script.on_event(defines.events.on_built_entity, function(e)
   local player = game.get_player(e.player_index) --[[@as LuaPlayer]]
   local player_table = storage.players[e.player_index]
-  local entity = e.created_entity
+  local entity = e.entity
 
   -- Cursor item will have been used to "place" the dummy, restore it.
   local cursor_stack = player.cursor_stack
