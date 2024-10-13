@@ -273,7 +273,7 @@ local function on_area_selected(e)
     if anti_alias then
       too_big_message = {"", too_big_message, " ", {"simple-area-screenshots.screenshot-too-big-anti-alias"}}
     end
-    player.print(too_big_message)
+    player.print(too_big_message, {game_state=false})
     dimensions.resolution.x = math.min(dimensions.resolution.x, current_max_resolution)
     dimensions.resolution.y = math.min(dimensions.resolution.y, current_max_resolution)
   end
@@ -333,7 +333,7 @@ local function on_area_selected(e)
       daytime = 0.5,
     })
   end
-  player.print({"simple-area-screenshots.screenshot-taken", filename})
+  player.print({"simple-area-screenshots.screenshot-taken", filename}, {game_state=false})
 end
 script.on_event(defines.events.on_player_selected_area, on_area_selected)
 script.on_event(defines.events.on_player_alt_selected_area, on_area_selected)
