@@ -1,6 +1,6 @@
 {
   "name": "simple-area-screenshots",
-  "version": "0.0.3",
+  "version": "1.0.0",
   "title": "Simple Area Screenshots",
   "author": "Wiwiweb",
   "dependencies": ["base >= 2.0.0"],
