@@ -2,6 +2,7 @@
 Version: 1.0.1
 Date: ???
   Changes:
+    - Default JPG quality setting is now 90 (previously 80).
 
 ---------------------------------------------------------------------------------------------------
 Version: 1.0.0

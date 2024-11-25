@@ -13,7 +13,7 @@ data.extend{
     setting_type = "runtime-per-user",
     minimum_value = 0,
     maximum_value = 100,
-    default_value = 80,
+    default_value = 90,
     order = "b",
   },
   {
