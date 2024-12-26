@@ -92,7 +92,7 @@ local function update_cursor_label(player_index, player_table, cursor_stack)
       zoom_level = get_auto_zoom_level(sel_start, sel_end, auto_zoom_target_res)
       display_zoom = string.format("Auto (%s)", get_displayed_zoom_level(zoom_level))
     else
-      display_zoom = get_displayed_zoom_level(player_table.zoom_index)
+      display_zoom = get_displayed_zoom_level(zoom_levels[player_table.zoom_index])
     end
     ---@cast zoom_level float
     local dimensions = get_dimensions_from_box(sel_start, sel_end, zoom_level)
