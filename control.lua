@@ -59,36 +59,25 @@ local function get_auto_zoom_level(pos1, pos2, auto_zoom_target_res)
   local width = math.abs(pos1.x - pos2.x)
   local height = math.abs(pos1.y - pos2.y)
   local largest_side_px = math.max(width, height) * 32
-  local zoom_index = #zoom_levels
-  local zoom_level
-  while zoom_index > 2 do -- Skip the first one because it's "auto" itself
-    zoom_level = zoom_levels[zoom_index] --[[@as float]]
-    local next_zoom_level = zoom_levels[zoom_index-1] --[[@as float]]
-    local res = math.floor(largest_side_px * zoom_level)
-    local next_res = math.floor(largest_side_px * next_zoom_level)
-    local diff_to_target = math.abs(auto_zoom_target_res - res)
-    local next_diff_to_target = math.abs(auto_zoom_target_res - next_res)
-    if diff_to_target < next_diff_to_target then
-      -- log(string.format("%.4f is closer than %.4f (%d vs %d)", zoom_level, next_zoom_level, diff_to_target, next_diff_to_target))
-      break -- That's the one
-    end
-    zoom_index = zoom_index - 1
-  end
-  return zoom_level
+  local zoom_level = auto_zoom_target_res / largest_side_px
+  return math.min(zoom_level, 100)
 end
 
 local function get_displayed_zoom_level(zoom_level)
   if zoom_level == "auto" then
     return "Auto"
   end
-  if zoom_level >= 1 then
-    return string.format("x%.1g", zoom_level)
+  if zoom_level >= 10 then
+    return string.format("x%d", zoom_level)
+  elseif zoom_level >= 1 then
+    return string.format("x%.2g", zoom_level)
   else
     return string.format("x1/%d", math.ceil(1 / zoom_level))
   end
 end
 
 local function update_cursor_label(player_index, player_table, cursor_stack)
+  if not (cursor_stack.valid and cursor_stack.valid_for_read) then return end
   local display_zoom
 
   local sel_start = player_table.start_of_selection
