@@ -5,6 +5,7 @@ Date: ???
     - The "Auto-zoom max screenshot size" setting is now "Auto-zoom *target* screenshot size".
     - Auto-zoom will now use precise zoom values to always obtain a screenshot of the target size instead of being restricted to powers of 2. For example it can zoom to x3.2 instead of x2 or x4.
     - Auto-zoom can now zoom higher than x1 if the screenshot would end up smaller than the target size.
+    - When trying to take a screenshot above the Factorio hardcoded max limit, the cursor's text will become red and display "Too big!".
     - Default JPG quality setting is now 90 (previously 80).
 
 ---------------------------------------------------------------------------------------------------

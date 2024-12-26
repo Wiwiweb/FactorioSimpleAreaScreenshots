@@ -97,8 +97,18 @@ local function update_cursor_label(player_index, player_table, cursor_stack)
     ---@cast zoom_level float
     local dimensions = get_dimensions_from_box(sel_start, sel_end, zoom_level)
     local pixel_count = dimensions.resolution.x * dimensions.resolution.y
-    cursor_stack.label = string.format("Zoom: %s | %sx%spx (%s)",
+
+    local label = string.format("Zoom: %s | %sx%spx (%s)",
       display_zoom, dimensions.resolution.x, dimensions.resolution.y, get_filesize_string(player_table, pixel_count))
+
+    local current_max_resolution = max_resolution
+    local anti_alias = settings.get_player_settings(player_index)["sas-anti-alias"].value --[[@as boolean]]
+    if anti_alias then current_max_resolution = current_max_resolution / 2 end
+    if dimensions.resolution.x > current_max_resolution or dimensions.resolution.y > current_max_resolution then
+      label = "[color=red]" .. label .. " | ⚠TOO BIG![/color]"
+    end
+
+    cursor_stack.label = label
   end
 end
 
