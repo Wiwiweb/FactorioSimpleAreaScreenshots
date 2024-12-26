@@ -54,4 +54,11 @@ data.extend{
     default_value = 2000,
     order = "g",
   },
+  {
+    type = "bool-setting",
+    name = "sas-autozoom-always-start",
+    setting_type = "runtime-per-user",
+    default_value = false,
+    order = "h",
+  },
 }

@@ -3,6 +3,7 @@ Version: 1.0.1
 Date: ???
   Features:
     - Added a setting to hide clouds, fog, and space dust. Defaults to true.
+    - Added a setting to always reset to "Auto" zoom when taking a new screenshot. Defaults to false.
 
   Changes:
     - The "Auto-zoom max screenshot size" setting is now "Auto-zoom *target* screenshot size".

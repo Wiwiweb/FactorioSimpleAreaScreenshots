@@ -200,6 +200,9 @@ script.on_event(defines.events.on_player_cursor_stack_changed, function(e)
       if player.character ~= nil then -- Protect against editor mode crashes
         player.character_build_distance_bonus = player.character_build_distance_bonus + 1000000
       end
+      if settings.get_player_settings(player)["sas-autozoom-always-start"].value then
+        player_table.zoom_index = 1
+      end
       update_cursor_label(e.player_index, player_table, cursor_stack)
     end
   end
