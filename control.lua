@@ -8,8 +8,9 @@ filesize = require("scripts/filesize")
 --- @field filesize_parameter float
 --- @field zoom_index uint
 
-local max_resolution = 16384
+local max_resolution = 16384 -- Factorio limit
 local max_resolution_anti_alias = max_resolution / 2
+local max_zoom_level = 8
 ---@type float[]|string[]
 local zoom_levels = {"auto", 0.03125, 0.0625, 0.125, 0.25, 0.5, 1, 2, 4, 8}
 
@@ -61,16 +62,14 @@ local function get_auto_zoom_level(pos1, pos2, auto_zoom_target_res)
   local height = math.abs(pos1.y - pos2.y)
   local largest_side_px = math.max(width, height) * 32
   local zoom_level = auto_zoom_target_res / largest_side_px
-  return math.min(zoom_level, 100)
+  return math.min(zoom_level, max_zoom_level)
 end
 
 local function get_displayed_zoom_level(zoom_level)
   if zoom_level == "auto" then
     return "Auto"
   end
-  if zoom_level >= 10 then
-    return string.format("x%d", zoom_level)
-  elseif zoom_level >= 1 then
+  if zoom_level >= 1 then
     return string.format("x%.2g", zoom_level)
   else
     return string.format("x1/%d", math.ceil(1 / zoom_level))
