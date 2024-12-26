@@ -2,19 +2,21 @@
 Version: 1.0.1
 Date: ???
   Features:
+    - Auto-zoom will now use precise zoom values to always obtain a screenshot of the target size instead of being restricted to powers of 2. For example it can zoom to x3.2 instead of x2 or x4.
+      - Due to this change, the "Auto-zoom max screenshot size" setting is now "Auto-zoom *target* screenshot size".
     - Added a setting to hide clouds, fog, and space dust. Defaults to true.
-    - Added a setting to always reset to "Auto" zoom when taking a new screenshot. Defaults to false.
+    - Added a setting to always reset to "Auto" zoom when starting a new screenshot. Defaults to false.
 
   Changes:
-    - The "Auto-zoom max screenshot size" setting is now "Auto-zoom *target* screenshot size".
-    - Auto-zoom will now use precise zoom values to always obtain a screenshot of the target size instead of being restricted to powers of 2. For example it can zoom to x3.2 instead of x2 or x4.
-    - Auto-zoom can now zoom higher than x1 if the screenshot would end up smaller than the target size.
     - When trying to take a screenshot above the Factorio hardcoded max limit, the cursor's text will become red and display "Too big!".
-    - When changing zoom level while in the middle of a selection with auto-zoom, the zoom will now be set to the closest manual zoom level from the current auto-zoom level, instead of starting at x1/32.
+    - When changing zoom level while in the middle of a selection with auto-zoom, the zoom will now be set to the closest manual zoom level from the current auto-zoom level, instead of starting at x1/32. This allows more convenient adjustments when you want a screenshot just a bit bigger or smaller than the auto-zoom.
     - Default JPG quality setting is now 90 (previously 80).
+
+  Info:
+    - Now requires Factorio 2.0.16 or above.
 
 ---------------------------------------------------------------------------------------------------
 Version: 1.0.0
 Date: 2024-10-14
   Features:
-    - Initial release
+    - Initial release.
