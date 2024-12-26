@@ -24,19 +24,26 @@ data.extend{
     order = "c",
   },
   {
+    type = "bool-setting",
+    name = "sas-hide-clouds-and-fog",
+    setting_type = "runtime-per-user",
+    default_value = true,
+    order = "d",
+  },
+  {
     type = "string-setting",
     name = "sas-daytime",
     setting_type = "runtime-per-user",
     default_value = "daytime",
     allowed_values = {"daytime", "nighttime", "both", "noop"},
-    order = "d",
+    order = "e",
   },
   {
     type = "bool-setting",
     name = "sas-anti-alias",
     setting_type = "runtime-per-user",
     default_value = true,
-    order = "e",
+    order = "f",
   },
   {
     type = "int-setting",
@@ -45,6 +52,6 @@ data.extend{
     minimum_value = 1,
     maximum_value = 16384,
     default_value = 2000,
-    order = "f",
+    order = "g",
   },
 }

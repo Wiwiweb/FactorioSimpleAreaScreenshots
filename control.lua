@@ -297,6 +297,7 @@ local function on_area_selected(e)
 
   local anti_alias = player_settings["sas-anti-alias"].value --[[@as boolean]]
   local alt_mode = player_settings["sas-alt-mode"].value --[[@as boolean]]
+  local hide_clouds_and_fog = player_settings["sas-hide-clouds-and-fog"].value --[[@as boolean]]
 
   local current_max_resolution = max_resolution
   if anti_alias then current_max_resolution = current_max_resolution / 2 end
@@ -345,6 +346,8 @@ local function on_area_selected(e)
     path = full_path,
     show_entity_info = alt_mode,
     anti_alias = anti_alias,
+    hide_clouds = hide_clouds_and_fog,
+    hide_fog = hide_clouds_and_fog,
     quality = jpg_quality,
 		daytime = daytime,
 	})
@@ -361,6 +364,8 @@ local function on_area_selected(e)
       path = night_full_path,
       show_entity_info = alt_mode,
       anti_alias = anti_alias,
+      hide_clouds = hide_clouds_and_fog,
+      hide_fog = hide_clouds_and_fog,
       quality = jpg_quality,
       daytime = 0.5,
     })
