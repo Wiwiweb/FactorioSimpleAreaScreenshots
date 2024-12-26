@@ -57,16 +57,21 @@ end
 
 ---@return uint zoom_index
 ---@return float zoom_level
-local function get_auto_zoom_index_and_level(pos1, pos2, auto_zoom_max_res)
+local function get_auto_zoom_index_and_level(pos1, pos2, auto_zoom_target_res)
   local width = math.abs(pos1.x - pos2.x)
   local height = math.abs(pos1.y - pos2.y)
+  local largest_side_px = math.max(width, height) * 32
   local zoom_index = #zoom_levels
   local zoom_level
-  while zoom_index > 1 do -- Skip the first one because it's "auto" itself
+  while zoom_index > 2 do -- Skip the first one because it's "auto" itself
     zoom_level = zoom_levels[zoom_index] --[[@as float]]
-    local resX = math.floor(width * 32 * zoom_level)
-    local resY = math.floor(height * 32 * zoom_level)
-    if resX < auto_zoom_max_res and resY < auto_zoom_max_res then
+    local next_zoom_level = zoom_levels[zoom_index-1] --[[@as float]]
+    local res = math.floor(largest_side_px * zoom_level)
+    local next_res = math.floor(largest_side_px * next_zoom_level)
+    local diff_to_target = math.abs(auto_zoom_target_res - res)
+    local next_diff_to_target = math.abs(auto_zoom_target_res - next_res)
+    if diff_to_target < next_diff_to_target then
+      -- log(string.format("%.4f is closer than %.4f (%d vs %d)", zoom_level, next_zoom_level, diff_to_target, next_diff_to_target))
       break -- That's the one
     end
     zoom_index = zoom_index - 1
@@ -85,8 +90,8 @@ local function update_cursor_label(player_index, player_table, cursor_stack)
   else
     local zoom_level = zoom_levels[player_table.zoom_index]
     if zoom_level == "auto" then
-      local auto_zoom_max_res = settings.get_player_settings(player_index)["sas-autozoom-max-px"].value
-      auto_zoom_index, zoom_level = get_auto_zoom_index_and_level(sel_start, sel_end, auto_zoom_max_res)
+      local auto_zoom_target_res = settings.get_player_settings(player_index)["sas-autozoom-target-px"].value
+      auto_zoom_index, zoom_level = get_auto_zoom_index_and_level(sel_start, sel_end, auto_zoom_target_res)
       display_zoom = string.format("Auto (%s)", displayed_zoom_levels[auto_zoom_index])
     else
       display_zoom = displayed_zoom_levels[player_table.zoom_index]
@@ -252,8 +257,9 @@ local function on_area_selected(e)
 
   local zoom_level = zoom_levels[player_table.zoom_index]
   if zoom_level == "auto" then
-    local auto_zoom_max_res = player_settings["sas-autozoom-max-px"].value
-    _auto_zoom_index, zoom_level = get_auto_zoom_index_and_level(e.area.left_top, e.area.right_bottom, auto_zoom_max_res)
+    local auto_zoom_target_res = player_settings["sas-autozoom-target-px"].value
+    _auto_zoom_index, zoom_level = get_auto_zoom_index_and_level(e.area.left_top, e.area.right_bottom, auto_zoom_target_res)
+    log("Auto zoom level: " .. zoom_level)
   end
   ---@cast zoom_level float
 

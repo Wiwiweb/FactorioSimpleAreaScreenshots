@@ -2,7 +2,8 @@
 Version: 1.0.1
 Date: ???
   Changes:
-    - Auto-zoom will now use zooms higher than x1 if the screenshot would end up very small.
+    - Auto-zoom will now zooms higher than x1 if the screenshot would end up very small.
+    - The "Auto-zoom max screenshot size" setting is now "Auto-zoom *target* screenshot size". The purpose is identical but the idea is easier to understand. This is no longer an upper limit but a target, so you may need to adjust this setting upwards.
     - Default JPG quality setting is now 90 (previously 80).
 
 ---------------------------------------------------------------------------------------------------

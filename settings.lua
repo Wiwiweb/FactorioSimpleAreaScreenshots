@@ -40,7 +40,7 @@ data.extend{
   },
   {
     type = "int-setting",
-    name = "sas-autozoom-max-px",
+    name = "sas-autozoom-target-px",
     setting_type = "runtime-per-user",
     minimum_value = 1,
     maximum_value = 16384,
