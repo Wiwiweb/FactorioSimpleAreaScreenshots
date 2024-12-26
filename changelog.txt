@@ -1,6 +1,6 @@
 ---------------------------------------------------------------------------------------------------
 Version: 1.0.1
-Date: ???
+Date: 2024-12-26
   Features:
     - Auto-zoom will now use precise zoom values to always obtain a screenshot of the target size instead of being restricted to powers of 2. For example it can zoom to x3.2 instead of x2 or x4.
       - Due to this change, the "Auto-zoom max screenshot size" setting is now "Auto-zoom *target* screenshot size".
