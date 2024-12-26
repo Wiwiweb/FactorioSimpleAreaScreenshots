@@ -60,7 +60,7 @@ end
 local function get_auto_zoom_index_and_level(pos1, pos2, auto_zoom_max_res)
   local width = math.abs(pos1.x - pos2.x)
   local height = math.abs(pos1.y - pos2.y)
-  local zoom_index = 7 -- Start at x1
+  local zoom_index = #zoom_levels
   local zoom_level
   while zoom_index > 1 do -- Skip the first one because it's "auto" itself
     zoom_level = zoom_levels[zoom_index] --[[@as float]]

@@ -2,6 +2,7 @@
 Version: 1.0.1
 Date: ???
   Changes:
+    - Auto-zoom will now use zooms higher than x1 if the screenshot would end up very small.
     - Default JPG quality setting is now 90 (previously 80).
 
 ---------------------------------------------------------------------------------------------------
