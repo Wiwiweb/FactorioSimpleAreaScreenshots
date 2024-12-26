@@ -11,7 +11,6 @@ filesize = require("scripts/filesize")
 local max_resolution = 16384
 ---@type float[]|string[]
 local zoom_levels = {"auto", 0.03125, 0.0625, 0.125, 0.25, 0.5, 1, 2, 4, 8}
-local displayed_zoom_levels = {"Auto", "x1/32", "x1/16", "x1/8", "x1/4", "x1/2", "x1", "x2", "x4", "x8"}
 
 --- @param player_index uint
 local function player_init(player_index)
@@ -55,9 +54,8 @@ local function get_dimensions_from_box(pos1, pos2, zoom)
   }
 end
 
----@return uint zoom_index
 ---@return float zoom_level
-local function get_auto_zoom_index_and_level(pos1, pos2, auto_zoom_target_res)
+local function get_auto_zoom_level(pos1, pos2, auto_zoom_target_res)
   local width = math.abs(pos1.x - pos2.x)
   local height = math.abs(pos1.y - pos2.y)
   local largest_side_px = math.max(width, height) * 32
@@ -76,7 +74,18 @@ local function get_auto_zoom_index_and_level(pos1, pos2, auto_zoom_target_res)
     end
     zoom_index = zoom_index - 1
   end
-  return zoom_index, zoom_level
+  return zoom_level
+end
+
+local function get_displayed_zoom_level(zoom_level)
+  if zoom_level == "auto" then
+    return "Auto"
+  end
+  if zoom_level >= 1 then
+    return string.format("x%.1g", zoom_level)
+  else
+    return string.format("x1/%d", math.ceil(1 / zoom_level))
+  end
 end
 
 local function update_cursor_label(player_index, player_table, cursor_stack)
@@ -85,16 +94,16 @@ local function update_cursor_label(player_index, player_table, cursor_stack)
   local sel_start = player_table.start_of_selection
   local sel_end = player_table.end_of_selection
   if player_table.map_view_during_tool_use or sel_start == nil or (sel_start.x == sel_end.x and sel_start.y == sel_end.y) then
-    display_zoom = displayed_zoom_levels[player_table.zoom_index]
+    display_zoom = get_displayed_zoom_level(zoom_levels[player_table.zoom_index])
     cursor_stack.label = string.format("Zoom: %s", display_zoom)
   else
     local zoom_level = zoom_levels[player_table.zoom_index]
     if zoom_level == "auto" then
       local auto_zoom_target_res = settings.get_player_settings(player_index)["sas-autozoom-target-px"].value
-      auto_zoom_index, zoom_level = get_auto_zoom_index_and_level(sel_start, sel_end, auto_zoom_target_res)
-      display_zoom = string.format("Auto (%s)", displayed_zoom_levels[auto_zoom_index])
+      zoom_level = get_auto_zoom_level(sel_start, sel_end, auto_zoom_target_res)
+      display_zoom = string.format("Auto (%s)", get_displayed_zoom_level(zoom_level))
     else
-      display_zoom = displayed_zoom_levels[player_table.zoom_index]
+      display_zoom = get_displayed_zoom_level(player_table.zoom_index)
     end
     ---@cast zoom_level float
     local dimensions = get_dimensions_from_box(sel_start, sel_end, zoom_level)
@@ -258,7 +267,7 @@ local function on_area_selected(e)
   local zoom_level = zoom_levels[player_table.zoom_index]
   if zoom_level == "auto" then
     local auto_zoom_target_res = player_settings["sas-autozoom-target-px"].value
-    _auto_zoom_index, zoom_level = get_auto_zoom_index_and_level(e.area.left_top, e.area.right_bottom, auto_zoom_target_res)
+    zoom_level = get_auto_zoom_level(e.area.left_top, e.area.right_bottom, auto_zoom_target_res)
     log("Auto zoom level: " .. zoom_level)
   end
   ---@cast zoom_level float
