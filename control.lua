@@ -9,6 +9,7 @@ filesize = require("scripts/filesize")
 --- @field zoom_index uint
 
 local max_resolution = 16384
+local max_resolution_anti_alias = max_resolution / 2
 ---@type float[]|string[]
 local zoom_levels = {"auto", 0.03125, 0.0625, 0.125, 0.25, 0.5, 1, 2, 4, 8}
 
@@ -101,11 +102,14 @@ local function update_cursor_label(player_index, player_table, cursor_stack)
     local label = string.format("Zoom: %s | %sx%spx (%s)",
       display_zoom, dimensions.resolution.x, dimensions.resolution.y, get_filesize_string(player_table, pixel_count))
 
-    local current_max_resolution = max_resolution
-    local anti_alias = settings.get_player_settings(player_index)["sas-anti-alias"].value --[[@as boolean]]
-    if anti_alias then current_max_resolution = current_max_resolution / 2 end
-    if dimensions.resolution.x > current_max_resolution or dimensions.resolution.y > current_max_resolution then
+    local largest_side = math.max(dimensions.resolution.x, dimensions.resolution.y)
+    if largest_side > max_resolution then
       label = "[color=red]" .. label .. " | ⚠TOO BIG![/color]"
+    elseif largest_side > max_resolution_anti_alias then
+      local anti_alias = settings.get_player_settings(player_index)["sas-anti-alias"].value --[[@as boolean]]
+      if anti_alias then
+        label = "[color=yellow]" .. label .. " | ⚠Anti-alias disabled[/color]"
+      end
     end
 
     cursor_stack.label = label
@@ -302,16 +306,19 @@ local function on_area_selected(e)
   local alt_mode = player_settings["sas-alt-mode"].value --[[@as boolean]]
   local hide_clouds_and_fog = player_settings["sas-hide-clouds-and-fog"].value --[[@as boolean]]
 
-  local current_max_resolution = max_resolution
-  if anti_alias then current_max_resolution = current_max_resolution / 2 end
-  if dimensions.resolution.x > current_max_resolution or dimensions.resolution.y > current_max_resolution then
-    local too_big_message = {"simple-area-screenshots.screenshot-too-big", current_max_resolution}
-    if anti_alias then
-      too_big_message = {"", too_big_message, " ", {"simple-area-screenshots.screenshot-too-big-anti-alias"}}
-    end
-    player.print(too_big_message, {game_state=false})
-    dimensions.resolution.x = math.min(dimensions.resolution.x, current_max_resolution)
-    dimensions.resolution.y = math.min(dimensions.resolution.y, current_max_resolution)
+  local largest_side = math.max(dimensions.resolution.x, dimensions.resolution.y)
+  local message
+  if anti_alias and largest_side > max_resolution_anti_alias then
+    anti_alias = false
+    message = {"simple-area-screenshots.screenshot-too-big-anti-alias-disabled", max_resolution_anti_alias}
+  end
+  if largest_side > max_resolution then
+    message = {"simple-area-screenshots.screenshot-too-big", max_resolution}
+    dimensions.resolution.x = math.min(dimensions.resolution.x, max_resolution)
+    dimensions.resolution.y = math.min(dimensions.resolution.y, max_resolution)
+  end
+  if message then
+    player.print(message, {game_state=false})
   end
 
   local file_extension

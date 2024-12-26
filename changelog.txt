@@ -8,8 +8,9 @@ Date: ???
     - Added a setting to always reset to "Auto" zoom when starting a new screenshot. Defaults to false.
 
   Changes:
-    - When trying to take a screenshot above the Factorio hardcoded max limit, the cursor's text will become red and display "Too big!".
     - When changing zoom level while in the middle of a selection with auto-zoom, the zoom will now be set to the closest manual zoom level from the current auto-zoom level, instead of starting at x1/32. This allows more convenient adjustments when you want a screenshot just a bit bigger or smaller than the auto-zoom.
+    - When trying to take a screenshot above the Factorio hardcoded max limit (16384px), the cursor's text will become red and display "Too big!".
+    - When trying to take a screenshot above the anti-aliasing max limit (8192px), the cursor's text will become yellow. Taking the screenshot will turn off anti-aliasing instead of cutting the screenshot. 
     - Default JPG quality setting is now 90 (previously 80).
 
   Info:
