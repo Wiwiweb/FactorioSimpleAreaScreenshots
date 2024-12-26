@@ -117,7 +117,25 @@ local function update_zoom(player_index, direction)
   if not player_table then return end
   if not player_table.tool_in_progress then return end -- Only allow this shortcut when holding the tool
 
-  local new_zoom_index = player_table.zoom_index + direction
+  local new_zoom_index
+  if player_table.zoom_index == 1 and player_table.start_of_selection then -- Auto in progress
+    local sel_start = player_table.start_of_selection
+    local sel_end = player_table.end_of_selection
+    local auto_zoom_target_res = settings.get_player_settings(player_index)["sas-autozoom-target-px"].value
+    current_zoom_level = get_auto_zoom_level(sel_start, sel_end, auto_zoom_target_res)
+
+    if direction == 1 then new_zoom_index = 2 else new_zoom_index = #zoom_levels end
+    while 2 <= new_zoom_index and new_zoom_index <= #zoom_levels do
+      zoom_level = zoom_levels[new_zoom_index]
+      if (direction == 1 and zoom_level > current_zoom_level) or
+         (direction == -1 and zoom_level < current_zoom_level) then
+        break
+      end
+      new_zoom_index = new_zoom_index + direction
+    end
+  else
+    new_zoom_index = player_table.zoom_index + direction
+  end
   if new_zoom_index <= 0 or #zoom_levels < new_zoom_index then return end
 
   player_table.zoom_index = new_zoom_index
