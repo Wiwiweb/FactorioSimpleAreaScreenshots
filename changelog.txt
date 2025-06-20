@@ -1,7 +1,9 @@
 ---------------------------------------------------------------------------------------------------
 Version: 1.0.2
 Date: ????
-  Changes:
+  Bugfixes:
+    - Fixed crash when trying to take a large screenshot with auto-zoom, caused by going below the minimum zoom allowed by Factorio.
+
 ---------------------------------------------------------------------------------------------------
 Version: 1.0.1
 Date: 2024-12-26
