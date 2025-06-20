@@ -8,12 +8,12 @@ filesize = require("scripts/filesize")
 --- @field filesize_parameter float
 --- @field zoom_index uint
 
-local max_resolution = 16384 -- Factorio limit
-local max_resolution_anti_alias = max_resolution / 2
-local min_zoom_level = 0.03125 -- Factorio limit
-local max_zoom_level = 8
+local MAX_RESOLUTION = 16384 -- Factorio limit
+local MAX_RESOLUTION_ANTI_ALIAS = MAX_RESOLUTION / 2
+local MIN_ZOOM_LEVEL = 0.03125 -- Factorio limit
+local MAX_ZOOM_LEVEL = 8
 ---@type float[]|string[]
-local zoom_levels = {"auto", 0.03125, 0.0625, 0.125, 0.25, 0.5, 1, 2, 4, 8}
+local ZOOM_LEVELS = {"auto", 0.03125, 0.0625, 0.125, 0.25, 0.5, 1, 2, 4, 8}
 
 --- @param player_index uint
 local function player_init(player_index)
@@ -64,10 +64,10 @@ local function get_auto_zoom_level(pos1, pos2, auto_zoom_target_res)
   local largest_side_px = math.max(width, height) * 32
   local zoom_level = auto_zoom_target_res / largest_side_px
 
-  if zoom_level > max_zoom_level then
-    zoom_level = max_zoom_level
-  elseif zoom_level < min_zoom_level then
-    zoom_level = min_zoom_level
+  if zoom_level > MAX_ZOOM_LEVEL then
+    zoom_level = MAX_ZOOM_LEVEL
+  elseif zoom_level < MIN_ZOOM_LEVEL then
+    zoom_level = MIN_ZOOM_LEVEL
   end
 
   return zoom_level
@@ -91,16 +91,16 @@ local function update_cursor_label(player_index, player_table, cursor_stack)
   local sel_start = player_table.start_of_selection
   local sel_end = player_table.end_of_selection
   if player_table.map_view_during_tool_use or sel_start == nil or (sel_start.x == sel_end.x and sel_start.y == sel_end.y) then
-    display_zoom = get_displayed_zoom_level(zoom_levels[player_table.zoom_index])
+    display_zoom = get_displayed_zoom_level(ZOOM_LEVELS[player_table.zoom_index])
     cursor_stack.label = string.format("Zoom: %s", display_zoom)
   else
-    local zoom_level = zoom_levels[player_table.zoom_index]
+    local zoom_level = ZOOM_LEVELS[player_table.zoom_index]
     if zoom_level == "auto" then
       local auto_zoom_target_res = settings.get_player_settings(player_index)["sas-autozoom-target-px"].value
       zoom_level = get_auto_zoom_level(sel_start, sel_end, auto_zoom_target_res)
       display_zoom = string.format("Auto (%s)", get_displayed_zoom_level(zoom_level))
     else
-      display_zoom = get_displayed_zoom_level(zoom_levels[player_table.zoom_index])
+      display_zoom = get_displayed_zoom_level(ZOOM_LEVELS[player_table.zoom_index])
     end
     ---@cast zoom_level float
     local dimensions = get_dimensions_from_box(sel_start, sel_end, zoom_level)
@@ -110,9 +110,9 @@ local function update_cursor_label(player_index, player_table, cursor_stack)
       display_zoom, dimensions.resolution.x, dimensions.resolution.y, get_filesize_string(player_table, pixel_count))
 
     local largest_side = math.max(dimensions.resolution.x, dimensions.resolution.y)
-    if largest_side > max_resolution then
+    if largest_side > MAX_RESOLUTION then
       label = "[color=red]" .. label .. " | ⚠TOO BIG![/color]"
-    elseif largest_side > max_resolution_anti_alias then
+    elseif largest_side > MAX_RESOLUTION_ANTI_ALIAS then
       local anti_alias = settings.get_player_settings(player_index)["sas-anti-alias"].value --[[@as boolean]]
       if anti_alias then
         label = "[color=yellow]" .. label .. " | ⚠Anti-alias disabled[/color]"
@@ -135,9 +135,9 @@ local function update_zoom(player_index, direction)
     local auto_zoom_target_res = settings.get_player_settings(player_index)["sas-autozoom-target-px"].value
     current_zoom_level = get_auto_zoom_level(sel_start, sel_end, auto_zoom_target_res)
 
-    if direction == 1 then new_zoom_index = 2 else new_zoom_index = #zoom_levels end
-    while 2 <= new_zoom_index and new_zoom_index <= #zoom_levels do
-      zoom_level = zoom_levels[new_zoom_index]
+    if direction == 1 then new_zoom_index = 2 else new_zoom_index = #ZOOM_LEVELS end
+    while 2 <= new_zoom_index and new_zoom_index <= #ZOOM_LEVELS do
+      zoom_level = ZOOM_LEVELS[new_zoom_index]
       if (direction == 1 and zoom_level > current_zoom_level) or
          (direction == -1 and zoom_level < current_zoom_level) then
         break
@@ -147,7 +147,7 @@ local function update_zoom(player_index, direction)
   else
     new_zoom_index = player_table.zoom_index + direction
   end
-  if new_zoom_index <= 0 or #zoom_levels < new_zoom_index then return end
+  if new_zoom_index <= 0 or #ZOOM_LEVELS < new_zoom_index then return end
 
   player_table.zoom_index = new_zoom_index
   local player = game.get_player(player_index) --[[@as LuaPlayer]]
@@ -295,7 +295,7 @@ local function on_area_selected(e)
 
   local player_settings = settings.get_player_settings(player)
 
-  local zoom_level = zoom_levels[player_table.zoom_index]
+  local zoom_level = ZOOM_LEVELS[player_table.zoom_index]
   if zoom_level == "auto" then
     local auto_zoom_target_res = player_settings["sas-autozoom-target-px"].value
     zoom_level = get_auto_zoom_level(e.area.left_top, e.area.right_bottom, auto_zoom_target_res)
@@ -315,14 +315,14 @@ local function on_area_selected(e)
 
   local largest_side = math.max(dimensions.resolution.x, dimensions.resolution.y)
   local message
-  if anti_alias and largest_side > max_resolution_anti_alias then
+  if anti_alias and largest_side > MAX_RESOLUTION_ANTI_ALIAS then
     anti_alias = false
-    message = {"simple-area-screenshots.screenshot-too-big-anti-alias-disabled", max_resolution_anti_alias}
+    message = {"simple-area-screenshots.screenshot-too-big-anti-alias-disabled", MAX_RESOLUTION_ANTI_ALIAS}
   end
-  if largest_side > max_resolution then
-    message = {"simple-area-screenshots.screenshot-too-big", max_resolution}
-    dimensions.resolution.x = math.min(dimensions.resolution.x, max_resolution)
-    dimensions.resolution.y = math.min(dimensions.resolution.y, max_resolution)
+  if largest_side > MAX_RESOLUTION then
+    message = {"simple-area-screenshots.screenshot-too-big", MAX_RESOLUTION}
+    dimensions.resolution.x = math.min(dimensions.resolution.x, MAX_RESOLUTION)
+    dimensions.resolution.y = math.min(dimensions.resolution.y, MAX_RESOLUTION)
   end
   if message then
     player.print(message, {game_state=false})
